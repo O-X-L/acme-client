@@ -1,6 +1,6 @@
 ---
 
-name: Lint Services
+name: Lint
 
 on:
   push:

@@ -60,7 +60,7 @@ path_certs: '/var/local/acme'
 create_bundle: true  # optionally create certificate bundles (public: cert+ca, private: cert+ca+pk)
 file_mode_cert: 0644  # default: 0640
 file_mode_key: 0640  # default: 0600
-file_group: 'ssl-cert'  # default: root
+file_group: 'ssl-cert'  # default: primary group of service-user
 hook_cmd: 'echo "DONE"'  # hook command to be ran after all certificates were processed AND something changed
 
 apps:
@@ -133,23 +133,23 @@ root@srv:/var/local/acme# tree
     └── app_2_1.key
 
 root@srv:/var/local/acme# ls -l
-drwx------ 2 root root     4096 Jan  5 23:32 account
-drwxr-xr-x 2 root ssl-cert 4096 Jan  5 23:34 bundle_certs
-drwxr-x--- 2 root ssl-cert 4096 Jan  5 23:34 bundle_private
-drwxr-xr-x 2 root ssl-cert 4096 Jan  5 23:34 certs
-drwxr-x--- 2 root ssl-cert 4096 Jan  5 23:34 private
+drwx------ 2 acme acme     4096 Jan  5 23:32 account
+drwxr-xr-x 2 acme ssl-cert 4096 Jan  5 23:34 bundle_certs
+drwxr-x--- 2 acme ssl-cert 4096 Jan  5 23:34 bundle_private
+drwxr-xr-x 2 acme ssl-cert 4096 Jan  5 23:34 certs
+drwxr-x--- 2 acme ssl-cert 4096 Jan  5 23:34 private
 
 root@srv:/var/local/acme# ls -l */*
--rw------- 1 root root      227 Jan  5 23:32 account/account_09ff80dda58a752729e0506d726ba47590ff1413129666b581a2eee1fa01449b.key
--rw------- 1 root root      227 Jan  5 23:32 account/account_3bfae30343be0ae9c6709cc568ac155d2c3cb562fdf487f6e858b8cd0006cd27.key
--rw-r--r-- 1 root ssl-cert 3831 Jan  5 23:33 bundle_certs/app_1_1.crt
--rw-r--r-- 1 root ssl-cert 3831 Jan  5 23:33 bundle_certs/app_2_1.crt
--rw-r----- 1 root ssl-cert 5510 Jan  5 23:33 bundle_private/app_1_1.pem
--rw-r----- 1 root ssl-cert 5506 Jan  5 23:33 bundle_private/app_2_1.pem
--rw-r--r-- 1 root ssl-cert 1935 Jan  5 23:33 certs/app_1_1.crt
--rw-r--r-- 1 root ssl-cert 1935 Jan  5 23:33 certs/app_2_1.crt
--rw-r----- 1 root ssl-cert 1679 Jan  5 23:33 private/app_1_1.key
--rw-r----- 1 root ssl-cert 1675 Jan  5 23:33 private/app_2_1.key
+-rw------- 1 acme acme      227 Jan  5 23:32 account/account_09ff80dda58a752729e0506d726ba47590ff1413129666b581a2eee1fa01449b.key
+-rw------- 1 acme acme      227 Jan  5 23:32 account/account_3bfae30343be0ae9c6709cc568ac155d2c3cb562fdf487f6e858b8cd0006cd27.key
+-rw-r--r-- 1 acme ssl-cert 3831 Jan  5 23:33 bundle_certs/app_1_1.crt
+-rw-r--r-- 1 acme ssl-cert 3831 Jan  5 23:33 bundle_certs/app_2_1.crt
+-rw-r----- 1 acme ssl-cert 5510 Jan  5 23:33 bundle_private/app_1_1.pem
+-rw-r----- 1 acme ssl-cert 5506 Jan  5 23:33 bundle_private/app_2_1.pem
+-rw-r--r-- 1 acme ssl-cert 1935 Jan  5 23:33 certs/app_1_1.crt
+-rw-r--r-- 1 acme ssl-cert 1935 Jan  5 23:33 certs/app_2_1.crt
+-rw-r----- 1 acme ssl-cert 1679 Jan  5 23:33 private/app_1_1.key
+-rw-r----- 1 acme ssl-cert 1675 Jan  5 23:33 private/app_2_1.key
 ```
 
 #### Output / Logs

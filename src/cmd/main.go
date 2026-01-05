@@ -56,7 +56,7 @@ func initCertDir() error {
 }
 
 func main() {
-	fmt.Printf("OXL ACME-Client | Version: %s | License: MIT | Repo: https://git.OXL.at/acme-client | © 2026 OXL IT Services\n", config.VERSION)
+	fmt.Printf("OXL ACME-Client | Version: %d | License: MIT | Repo: https://git.OXL.at/acme-client | © 2026 OXL IT Services\n", config.VERSION)
 
 	var pathConfig string
 	var showProviders bool
