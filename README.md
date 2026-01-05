@@ -23,6 +23,8 @@ This client enables you to supply a simple configuration-file that will request 
 
 1. Get the binary
 
+  * Docker image: [oxlorg/acme-client](https://hub.docker.com/r/oxlorg/acme-client)
+
   * Download pre-compiled binary from the [Releases](https://github.com/O-X-L/acme-client/releases)
 
   * Or build it yourself:
