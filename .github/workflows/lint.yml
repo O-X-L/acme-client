@@ -37,6 +37,7 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version-file: 'src/go.mod'
+          cache: true
 
       # NOTE: not using 'golangci/golangci-lint-action' because of warn/error split
       - name: Install dependencies
