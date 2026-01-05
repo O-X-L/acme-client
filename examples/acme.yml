@@ -1,0 +1,52 @@
+---
+
+email: 'test@waf.alpenmesh.com'
+retries: 1
+cooldown_sec: 1
+path_web: '/var/www/acme-test'
+path_certs: '/tmp/acme-test'
+concat: true
+file_mode_cert: 0644
+file_mode_key: 0640
+file_group: 'ssl-cert'
+hook_cmd: 'echo "DONE"'
+
+apps:
+  - name: "App #1"
+    id: 1
+    certs:
+      - id: 1
+        challenge_type: "http-01"
+        provider: "https://acme-staging-v02.api.letsencrypt.org/directory"
+        domains:
+          - 'aaa.waf.alpenmesh.com'
+          - 'bbb.waf.alpenmesh.com'
+          - 'ccc.waf.alpenmesh.com'
+
+      - id: 2
+        challenge_type: "http-01"
+        provider: "https://acme-staging-v02.api.letsencrypt.org/directory"
+        domains:
+          - 'ddd.waf.alpenmesh.com'
+          - 'eee.waf.alpenmesh.com'
+          - 'ddd.waf.alpenmesh.com'
+
+  - name: "App #2"
+    id: 2
+    certs:
+      - id: 1
+        challenge_type: "http-01"
+        provider: "https://acme-staging-v02.api.letsencrypt.org/directory"
+        domains:
+          - 'fff.waf.alpenmesh.com'
+          - 'ggg.waf.alpenmesh.com'
+          - 'hhh.waf.alpenmesh.com'
+
+  - name: "App #3"
+    id: 3
+    certs:
+      - id: 1
+        challenge_type: "dns-01"
+        provider: "googledomains"
+        domains:
+          - '*.alpenmesh.net'
