@@ -39,6 +39,11 @@ jobs:
           go-version-file: 'src/go.mod'
           cache: true
 
+      - name: Download module-dependencies
+        run: |
+          cd src/
+          go mod tidy
+
       # NOTE: not using 'golangci/golangci-lint-action' because of warn/error split
       - name: Install dependencies
         run: |
