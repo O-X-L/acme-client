@@ -1,6 +1,6 @@
 FROM --platform=${BUILDPLATFORM} golang:1.25-alpine3.23 AS builder
 
-# BUILD: docker build -f Dockerfile -t acme-client:1.0 --build-arg "VERSION=1.0" --no-cache --network=host --progress=plain .
+# BUILD: docker build -f Dockerfile -t acme-client --build-arg "VERSION=1.0" --no-cache --network=host --progress=plain .
 # RUN: docker run -i --rm --name acme-client --network=host --volume /etc/acme.yml:/etc/acme.yml --volume /var/lib/acme:/var/lib/acme acme-client:1.0
 
 ARG VERSION=1.0
