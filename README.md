@@ -57,6 +57,7 @@ It expects a YAML config-file in this format:
 email: 'test@waf.alpenmesh.com'
 retries: 1  # retries per configured certificate if a validation error occurred
 cooldown_sec: 1  # seconds to wait between requests/retries
+renewal_days: 14  # default: 14; when cert-lifetime falls below - it gets renewed
 path_web: '/var/www/acme'  # web-root-directory - has to contain '<path>/.well-known/acme-challenge/' and be writable for the service-user
 path_certs: '/var/local/acme'
 create_bundle: true  # optionally create certificate bundles (public: cert+ca, private: cert+ca+pk)
