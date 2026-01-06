@@ -30,7 +30,7 @@ const (
 	DIR_CERTS_PUBLIC       = "certs"
 	DIR_CERTS_PRIVATE      = "private"
 	DIR_WEB_ACME_CHALLENGE = ".well-known/acme-challenge"
-	VERSION                = "1.1"
+	VERSION                = "1.0.1"
 )
 
 type AppCert struct {
