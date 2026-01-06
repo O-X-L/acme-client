@@ -54,7 +54,7 @@ compile "openbsd" "arm"
 compile "darwin" "amd64"
 compile "darwin" "arm64"
 
-compile "windows" "386"
-compile "windows" "amd64"
+#compile "windows" "386"
+#compile "windows" "amd64"
 
 echo "COMMAND TO REMOVE ALL NON-ARCHIVES: find ${PATH_BUILD} -type f ! -name '*.*' -delete"
