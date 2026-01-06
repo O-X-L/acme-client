@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"time"
 
-	"git.oxl.at/acme-client/internal/config"
+	"git.oxl.at/acme-client/pkg/config"
 )
 
 func NeedsUpdate(baseName string, desired []string) (bool, string) {
@@ -72,7 +72,7 @@ func NeedsUpdate(baseName string, desired []string) (bool, string) {
 		return true, "expired"
 	}
 
-	if time.Until(cert.NotAfter) < config.RENEWAL_DAYS*24*time.Hour {
+	if time.Until(cert.NotAfter) < config.RenewalDays {
 		return true, "expiring soon"
 	}
 

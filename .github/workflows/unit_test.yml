@@ -34,7 +34,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version-file: 'src/go.mod'
+          go-version-file: 'go.mod'
           cache: true
 
       - name: Restore Go Cache
@@ -53,9 +53,7 @@ jobs:
           go install gotest.tools/gotestsum@latest
 
       - name: Download module-dependencies
-        run: |
-          cd src/
-          go mod tidy
+        run: go mod tidy
 
       - name: Building Go Binary
         run: bash scripts/build.sh

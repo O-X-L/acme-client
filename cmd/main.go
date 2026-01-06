@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"git.oxl.at/acme-client/internal/acme"
-	"git.oxl.at/acme-client/internal/config"
 	"git.oxl.at/acme-client/internal/manager"
 	"git.oxl.at/acme-client/internal/u"
+	"git.oxl.at/acme-client/pkg/config"
 	"git.oxl.at/go-validator/pkg/validate"
 )
 
@@ -96,6 +97,8 @@ func main() {
 		u.LogError(fmt.Sprintf("%v", err))
 		return
 	}
+
+	config.RenewalDays = time.Duration(config.Config.RenewalDays) * 24 * time.Hour
 
 	manager.Run()
 }

@@ -18,8 +18,8 @@ import (
 	"time"
 
 	"git.oxl.at/acme-client/internal/acme"
-	"git.oxl.at/acme-client/internal/config"
 	"git.oxl.at/acme-client/internal/u"
+	"git.oxl.at/acme-client/pkg/config"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/go-acme/lego/v4/registration"

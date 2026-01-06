@@ -36,7 +36,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version-file: 'src/go.mod'
+          go-version-file: 'go.mod'
           cache: true
 
       - name: Restore Go Cache
@@ -50,9 +50,7 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Download module-dependencies
-        run: |
-          cd src/
-          go mod tidy
+        run: go mod tidy
 
       # NOTE: not using 'golangci/golangci-lint-action' because of warn/error split
       - name: Install dependencies

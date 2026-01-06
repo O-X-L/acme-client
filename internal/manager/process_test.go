@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"git.oxl.at/acme-client/internal/config"
+	"git.oxl.at/acme-client/pkg/config"
 	"github.com/go-acme/lego/v4/lego"
 )
 

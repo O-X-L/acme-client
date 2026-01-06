@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"git.oxl.at/acme-client/internal/config"
 	"git.oxl.at/acme-client/internal/u"
+	"git.oxl.at/acme-client/pkg/config"
 )
 
 // dummy certs created through easyrsa: https://gist.github.com/superstes/5eda95dcf4016e9376c6e8b60f8b1f6b

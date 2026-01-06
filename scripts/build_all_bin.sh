@@ -6,9 +6,9 @@ cd "$(dirname "$0")/.."
 
 PATH_BASE="$(pwd)"
 PATH_BUILD="${PATH_BASE}/build"
-PATH_SRC="${PATH_BASE}/src"
+PATH_SRC="${PATH_BASE}"
 
-cd "${PATH_BASE}/src"
+cd "$PATH_SRC"
 VERSION="$(cat "./internal/config/config.go" | grep VERSION | cut -d '=' -f2 | tr -d ' ' | tr -d '"')"
 
 mkdir -p "$PATH_BUILD"

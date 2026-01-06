@@ -34,7 +34,7 @@ This client enables you to supply a simple configuration-file that will request 
 
       ```bash
       mkdir $REPO/build
-      cd $REPO/src
+      cd $REPO
       go mod tidy  # download dependencies
       GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o "../build/acme" ./cmd/main.go
       ```

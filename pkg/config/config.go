@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"git.oxl.at/acme-client/internal/u"
 	"github.com/creasty/defaults"
@@ -17,10 +18,10 @@ var (
 	PathAccountCache       string
 	PathCertsBundlePublic  string
 	PathCertsBundlePrivate string
+	RenewalDays            time.Duration
 )
 
 const (
-	RENEWAL_DAYS           = 14
 	CHALLENGE_TYPE_DNS     = "dns-01"
 	CHALLENGE_TYPE_HTTP    = "http-01"
 	DIR_BUNDLE_PUBLIC      = "bundle_certs"
@@ -29,7 +30,7 @@ const (
 	DIR_CERTS_PUBLIC       = "certs"
 	DIR_CERTS_PRIVATE      = "private"
 	DIR_WEB_ACME_CHALLENGE = ".well-known/acme-challenge"
-	VERSION                = "1.0"
+	VERSION                = "1.1"
 )
 
 type AppCert struct {
@@ -58,6 +59,7 @@ type ConfigFile struct {
 	FileModeKey  os.FileMode `yaml:"file_mode_key" default:"0600"`
 	FileGroup    string      `yaml:"file_group"`
 	HookCmd      string      `yaml:"hook_cmd"`
+	RenewalDays  uint        `yaml:"renewal_days" default:"14"`
 }
 
 func LoadConfig(path string) (*ConfigFile, error) {

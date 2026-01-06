@@ -36,5 +36,4 @@ function lint() {
   echo -e '\033[0m'
 }
 
-cd "${BASE_DIR}/src"
 lint
