@@ -3,13 +3,13 @@ FROM --platform=${BUILDPLATFORM} golang:1.25-alpine3.23 AS builder
 # BUILD: docker build -f Dockerfile -t acme-client --build-arg "VERSION=1.0" --no-cache --network=host --progress=plain .
 # RUN: docker run -i --rm --name acme-client --network=host --volume /etc/acme.yml:/etc/acme.yml --volume /var/lib/acme:/var/lib/acme acme-client:1.0
 
-ARG VERSION=1.0
+ARG VERSION=v1.0.1
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
 ENV SOURCES_URL=https://github.com/O-X-L/acme-client/archive/refs/tags/${VERSION}.tar.gz
 
-WORKDIR $GOPATH/src/github.com/O-X-L/acme-client/src
+WORKDIR $GOPATH/src/github.com/O-X-L/acme-client
 
 RUN set -eux; \
         wget -O acme-client.tar.gz "$SOURCES_URL"; \
@@ -25,15 +25,18 @@ RUN set -eux; \
             "linux/arm/v7") GOARCH=arm GOARM=7 ;; \
         esac; \
         printf "Building acme-client for arch ${GOARCH}\n"; \
-        GOARCH=${GOARCH} go build -a -o /acme-client $GOPATH/src/github.com/O-X-L/acme-client/src/cmd/main.go
+        GOARCH=${GOARCH} go build -a -o /acme-client $GOPATH/src/github.com/O-X-L/acme-client/cmd/main.go
 
 FROM alpine:3.23
 
 ARG UID=9799
 ARG USER=acme
+ARG ADDITIONAL_GID=113
+ARG ADDITIONAL_GROUP=ssl-cert
 
 RUN set -eux; \
         addgroup --gid $UID --system $USER; \
+        addgroup --gid $ADDITIONAL_GID --system $ADDITIONAL_GROUP; \
         adduser \
                 --disabled-password \
                 --ingroup $USER \

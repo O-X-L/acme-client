@@ -5,7 +5,7 @@ retries: 1
 cooldown_sec: 1
 path_web: '/var/www/acme-test'
 path_certs: '/tmp/acme-test'
-concat: true
+create_bundle: true
 file_mode_cert: 0644
 file_mode_key: 0640
 file_group: 'ssl-cert'
