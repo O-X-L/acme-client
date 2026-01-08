@@ -10,7 +10,6 @@ import (
 	"git.oxl.at/acme-client/internal/acme"
 	"git.oxl.at/acme-client/internal/u"
 	oxl_validate "git.oxl.at/go-validator/pkg/validate"
-	"git.oxl.at/go-validator/pkg/validate/regex"
 	oxl_validate_regex "git.oxl.at/go-validator/pkg/validate/regex"
 )
 
@@ -120,7 +119,7 @@ func validateDomainWildcard(value interface{}) bool {
 		return false
 	}
 	s = strings.TrimPrefix(s, "*.")
-	return value == "localhost" || regex.ValidateRegex(regex.REGEX_DOMAINS_SIMPLE, s)
+	return value == "localhost" || oxl_validate_regex.ValidateRegex(oxl_validate_regex.REGEX_DOMAINS_SIMPLE, s)
 }
 
 func ValidateSchema(cnf *ConfigFile) bool {
@@ -129,7 +128,7 @@ func ValidateSchema(cnf *ConfigFile) bool {
 	v.ValidatorsCustom["domain_wildcard"] = validateDomainWildcard
 
 	validationErrors := v.Validate(cnf)
-	if validationErrors != nil && len(validationErrors) > 0 {
+	if len(validationErrors) > 0 {
 		u.LogError(fmt.Sprintf("Got invalid config (schema): %+v", validationErrors))
 		return false
 	}
