@@ -61,6 +61,9 @@ func ValidateConfig(cnf *ConfigFile) error {
 				return fmt.Errorf("got duplicate Certificate-ID: app '%s' (%d - %d)", app.Name, app.ID, cert.ID)
 			}
 			certIDs = append(certIDs, cert.ID)
+			if err := validateCertConfig(cert); err != nil {
+				return fmt.Errorf("got invalid certificate config: app '%s' (%d - %d) %v", app.Name, app.ID, cert.ID, err)
+			}
 		}
 
 	}
@@ -68,7 +71,7 @@ func ValidateConfig(cnf *ConfigFile) error {
 	return nil
 }
 
-func ValidateCertConfig(app App, cert AppCert) error {
+func validateCertConfig(cert AppCert) error {
 	switch cert.ChallengeType {
 	case CHALLENGE_TYPE_DNS:
 		if !acme.IsSupportedProvider(cert.Provider) {

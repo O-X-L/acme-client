@@ -43,11 +43,6 @@ func processCert(app config.App, cert config.AppCert) (bool, error) {
 
 	certBaseName := fmt.Sprintf("app_%d_%d", app.ID, cert.ID)
 
-	err := config.ValidateCertConfig(app, cert)
-	if err != nil {
-		return false, err
-	}
-
 	updateNeeded, reason := NeedsUpdate(certBaseName, cert.Domains)
 	if !updateNeeded {
 		u.Log(fmt.Sprintf("%s skipping: cert is valid", key))
@@ -59,7 +54,7 @@ func processCert(app config.App, cert config.AppCert) (bool, error) {
 	for attempt := uint(0); attempt <= config.Config.Retries; attempt++ {
 		time.Sleep(time.Second * time.Duration(config.Config.CooldownSec))
 		u.Log(fmt.Sprintf("%s obtaining certificate...", key))
-		err = obtainCert(certBaseName, cert)
+		err := obtainCert(certBaseName, cert)
 		if err == nil {
 			return true, nil
 		}

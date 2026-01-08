@@ -13,31 +13,37 @@ var (
 
 func LogDevTest(m string) {
 	if MODE_DEV || MODE_TEST || MODE_DEBUG {
+		log.SetOutput(os.Stdout)
 		log.Printf("[DEV] %v\n", m)
 	}
 }
 
 func LogDev(m string) {
 	if MODE_DEV || MODE_DEBUG {
+		log.SetOutput(os.Stdout)
 		log.Printf("[DEV] %v\n", m)
 	}
 }
 
 func LogDebug(m string) {
 	if MODE_DEBUG {
+		log.SetOutput(os.Stdout)
 		log.Printf("[DEBUG] %v\n", m)
 	}
 }
 
 func Log(m string) {
+	log.SetOutput(os.Stdout)
 	log.Printf("[INFO] %v\n", m)
 }
 
 func LogError(m string) {
+	log.SetOutput(os.Stderr)
 	log.Printf("[ERROR] %v\n", m)
 }
 
 func LogWarning(m string) {
+	log.SetOutput(os.Stderr)
 	log.Printf("[WARN] %v\n", m)
 }
 

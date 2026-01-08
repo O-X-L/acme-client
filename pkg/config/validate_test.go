@@ -171,7 +171,7 @@ func TestConfigValidateCertLogic(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := ValidateCertConfig(App{}, tt.cert)
+			err := validateCertConfig(tt.cert)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("%s: got error %v, wantErr %v", tt.name, err, tt.wantErr)
 			}
