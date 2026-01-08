@@ -62,3 +62,6 @@ jobs:
 
       - name: Running Go Tests
         run: bash scripts/unit_test.sh
+
+      - name: Testing check-mode (validating example-config)
+        run: build/acme -path-cnf examples/acme.yml -check
