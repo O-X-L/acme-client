@@ -19,6 +19,7 @@ var (
 	PathCertsBundlePublic  string
 	PathCertsBundlePrivate string
 	RenewalDays            time.Duration
+	CheckMode              bool
 )
 
 const (
@@ -30,7 +31,7 @@ const (
 	DIR_CERTS_PUBLIC       = "certs"
 	DIR_CERTS_PRIVATE      = "private"
 	DIR_WEB_ACME_CHALLENGE = ".well-known/acme-challenge"
-	VERSION                = "1.0.1"
+	VERSION                = "1.0.2"
 )
 
 type AppCert struct {
@@ -38,7 +39,7 @@ type AppCert struct {
 	Provider       string            `yaml:"provider" required:"true"` // URL if HTTP-01 else one of the listed DNS-providers
 	ProviderConfig map[string]string `yaml:"provider_config"`          // env-vars for DNS-01
 	ChallengeType  string            `yaml:"challenge_type" validate_regex:"^(http-01|dns-01)$" required:"true"`
-	Domains        []string          `yaml:"domains" validate:"domain"`
+	Domains        []string          `yaml:"domains" validate:"domain_wildcard"`
 }
 
 type App struct {

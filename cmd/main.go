@@ -11,7 +11,6 @@ import (
 	"git.oxl.at/acme-client/internal/manager"
 	"git.oxl.at/acme-client/internal/u"
 	"git.oxl.at/acme-client/pkg/config"
-	"git.oxl.at/go-validator/pkg/validate"
 )
 
 func initCertDir() error {
@@ -63,6 +62,7 @@ func main() {
 	var showProviders bool
 	flag.StringVar(&pathConfig, "path-cnf", "acme.yml", "Path to config file")
 	flag.BoolVar(&showProviders, "show-providers", false, "Only show supported DNS-providers and exit")
+	flag.BoolVar(&config.CheckMode, "check", false, "Only validate the config-file")
 	flag.Parse()
 
 	if showProviders {
@@ -75,27 +75,29 @@ func main() {
 	cnf, err := config.LoadConfig(pathConfig)
 	if err != nil {
 		u.LogError(fmt.Sprintf("Failed to load config: %v", err))
-		return
+		os.Exit(1)
 	}
 	config.Config = cnf
 
 	err = config.ValidateConfig(cnf)
 	if err != nil {
 		u.LogError(fmt.Sprintf("Got invalid config: %v", err))
-		return
+		os.Exit(1)
 	}
 
-	v := &validate.StructValidator{}
-	validationErrors := v.Validate(cnf)
-	if len(validationErrors) > 0 {
-		u.LogError(fmt.Sprintf("Got invalid config: %v", err))
-		return
+	if !config.ValidateSchema(cnf) {
+		os.Exit(1)
+	}
+
+	if config.CheckMode {
+		u.Log("Config is valid")
+		os.Exit(0)
 	}
 
 	err = initCertDir()
 	if err != nil {
 		u.LogError(fmt.Sprintf("%v", err))
-		return
+		os.Exit(1)
 	}
 
 	config.RenewalDays = time.Duration(config.Config.RenewalDays) * 24 * time.Hour

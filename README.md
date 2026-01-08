@@ -99,6 +99,16 @@ See also: [Examples](https://github.com/O-X-L/acme-client/blob/latest/examples/)
 ### Run
 
 ```bash
+./acme --help
+> OXL ACME-Client | Version: 1.0.2 | License: MIT | Repo: https://git.OXL.at/acme-client | © 2026 OXL IT Services
+> Usage of build/acme:
+>   -check
+>         Only validate the config-file
+>   -path-cnf string
+>         Path to config file (default "acme.yml")
+>   -show-providers
+>         Only show supported DNS-providers and exit
+
 # move to permanent directory after upload
 mv ./acme /usr/local/bin/acme
 

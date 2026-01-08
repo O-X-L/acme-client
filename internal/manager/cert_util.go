@@ -6,14 +6,14 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
 	"os"
-	"os/user"
 	"path/filepath"
 	"reflect"
 	"sort"
-	"strconv"
 	"time"
 
+	"git.oxl.at/acme-client/internal/u"
 	"git.oxl.at/acme-client/pkg/config"
 )
 
@@ -101,10 +101,10 @@ func SetOwnership(path string) {
 	if config.Config.FileGroup == "" {
 		return
 	}
-	g, err := user.LookupGroup(config.Config.FileGroup)
+	gid, err := u.GetGroupID(config.Config.FileGroup)
 	if err != nil {
+		u.LogError(fmt.Sprintf("%v", err))
 		return
 	}
-	gid, _ := strconv.Atoi(g.Gid)
 	os.Chown(path, -1, gid)
 }

@@ -3,13 +3,14 @@ package config
 import (
 	"fmt"
 	"os"
-	"os/user"
 	"path/filepath"
 	"slices"
 	"strings"
 
 	"git.oxl.at/acme-client/internal/acme"
 	"git.oxl.at/acme-client/internal/u"
+	oxl_validate "git.oxl.at/go-validator/pkg/validate"
+	"git.oxl.at/go-validator/pkg/validate/regex"
 	oxl_validate_regex "git.oxl.at/go-validator/pkg/validate/regex"
 )
 
@@ -20,7 +21,12 @@ func ValidateConfig(cnf *ConfigFile) error {
 	if Config.PathWeb != "" {
 		pathWebAcmeChallenge := filepath.Join(Config.PathWeb, DIR_WEB_ACME_CHALLENGE)
 		if _, err := os.Stat(pathWebAcmeChallenge); err != nil {
-			return fmt.Errorf("ACME-challenge directory does not exist: %s", pathWebAcmeChallenge)
+			err := fmt.Errorf("ACME-challenge directory does not exist: %s", pathWebAcmeChallenge)
+			if CheckMode {
+				u.LogWarning(fmt.Sprintf("%v", err))
+			} else {
+				return err
+			}
 		}
 	}
 
@@ -33,7 +39,7 @@ func ValidateConfig(cnf *ConfigFile) error {
 	}
 
 	if cnf.FileGroup != "" {
-		if _, err := user.LookupGroup(cnf.FileGroup); err != nil {
+		if err := validateGroup(cnf.FileGroup); err != nil {
 			return fmt.Errorf("group does not exist")
 		}
 	}
@@ -65,9 +71,16 @@ func ValidateConfig(cnf *ConfigFile) error {
 				return fmt.Errorf("got invalid certificate config: app '%s' (%d - %d) %v", app.Name, app.ID, cert.ID, err)
 			}
 		}
-
 	}
 
+	return nil
+}
+
+func validateGroup(grp string) error {
+	_, err := u.GetGroupID(grp)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -83,7 +96,12 @@ func validateCertConfig(cert AppCert) error {
 			return fmt.Errorf("webroot path required for http-01 (/.well-known/acme-challenge)")
 		}
 		if _, err := os.Stat(Config.PathWeb); os.IsNotExist(err) {
-			return fmt.Errorf("webroot dir for http-01 does not exist: %s (/.well-known/acme-challenge)", Config.PathWeb)
+			errMsg := fmt.Errorf("webroot dir for http-01 does not exist: %s (/.well-known/acme-challenge)", Config.PathWeb)
+			if CheckMode {
+				u.LogWarning(fmt.Sprintf("%v", errMsg))
+			} else {
+				return errMsg
+			}
 		}
 		if !u.RegexMatch(oxl_validate_regex.REGEX_URL_SIMPLE, cert.Provider) {
 			return fmt.Errorf("provider for http-01 should be a valid URL: %s", cert.Provider)
@@ -94,4 +112,26 @@ func validateCertConfig(cert AppCert) error {
 	}
 
 	return nil
+}
+
+func validateDomainWildcard(value interface{}) bool {
+	s, ok := value.(string)
+	if !ok {
+		return false
+	}
+	s = strings.TrimPrefix(s, "*.")
+	return value == "localhost" || regex.ValidateRegex(regex.REGEX_DOMAINS_SIMPLE, s)
+}
+
+func ValidateSchema(cnf *ConfigFile) bool {
+	v := &oxl_validate.StructValidator{}
+	v.ValidatorsCustom = oxl_validate.GetDefaultCustomValidators()
+	v.ValidatorsCustom["domain_wildcard"] = validateDomainWildcard
+
+	validationErrors := v.Validate(cnf)
+	if validationErrors != nil && len(validationErrors) > 0 {
+		u.LogError(fmt.Sprintf("Got invalid config (schema): %+v", validationErrors))
+		return false
+	}
+	return true
 }
