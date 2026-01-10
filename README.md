@@ -191,7 +191,7 @@ First run:
 <details>
 
 ```
-OXL ACME-Client | Version: 1.1.0 | License: MIT | Repo: https://git.OXL.at/acme-client | © 2026 OXL IT Services
+OXL ACME-Client | Version: 1.0.2 | License: MIT | Repo: https://git.OXL.at/acme-client | © 2026 OXL IT Services
 2026/01/05 23:04:30 [INFO] [App: 1 'App #1' | Cert: 1] processing...
 2026/01/05 23:04:30 [INFO] [App: 1 'App #1' | Cert: 1] updating: certificate file missing
 2026/01/05 23:04:31 [INFO] [App: 1 'App #1' | Cert: 1] obtaining certificate...
@@ -274,7 +274,7 @@ OXL ACME-Client | Version: 1.1.0 | License: MIT | Repo: https://git.OXL.at/acme-
 2026/01/05 23:05:53 [INFO] [fff.waf.alpenmesh.com, ggg.waf.alpenmesh.com, hhh.waf.alpenmesh.com] acme: Validations succeeded; requesting certificates
 2026/01/05 23:05:53 [INFO] Wait for certificate [timeout: 30s, interval: 500ms]
 2026/01/05 23:05:54 [INFO] [fff.waf.alpenmesh.com] Server responded with a certificate.
-2026/01/05 23:05:54 Executing hook: "echo "DONE""
+2026/01/05 23:05:54 [INFO] Executing hook: "echo "DONE""
 DONE
 ```
 
