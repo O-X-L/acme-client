@@ -80,7 +80,7 @@ groups:
     certs:
       - id: 1
         challenge_type: "http-01"
-        provider: "https://acme-staging-v02.api.letsencrypt.org/directory"
+        provider: "letsencrypt_staging"  # or use URL: https://acme-staging-v02.api.letsencrypt.org/directory
         domains:
           - 'aaa.waf.alpenmesh.com'
           - 'bbb.waf.alpenmesh.com'
@@ -110,19 +110,19 @@ See also: [Examples](https://github.com/O-X-L/acme-client/blob/latest/examples/)
 
 ```bash
 ./acme --help
-> OXL ACME-Client | Version: 1.0.2 | License: MIT | Repo: https://git.OXL.at/acme-client | © 2026 OXL IT Services
+> OXL ACME-Client | Version: 1.1.0 | License: MIT | Repo: https://git.OXL.at/acme-client | © 2026 OXL IT Services
 > Usage of build/acme:
 >   -check
 >         Only validate the config-file
 >   -c string
 >         Path to config file (default "acme.yml")
 >   -show-providers
->         Only show supported DNS-providers and exit
+>         Only show supported DNS-providers & HTTP-Provider aliases
 
 # move to permanent directory after upload
 mv ./acme /usr/local/bin/acme
 
-# to check the supported DNS-providers
+# to check the supported DNS-providers & HTTP-Provider aliases
 /usr/local/bin/acme -show-providers
 
 # run
@@ -143,17 +143,17 @@ root@srv:/var/local/acme# tree
 │   ├── account_09ff80dda58a752729e0506d726ba47590ff1413129666b581a2eee1fa01449b.key
 │   └── account_3bfae30343be0ae9c6709cc568ac155d2c3cb562fdf487f6e858b8cd0006cd27.key
 ├── bundle_certs  # if 'create_bundle: true' | public-key bundles
-│   ├── app_1_1.crt
-│   └── app_2_1.crt
+│   ├── grp_1_1.crt
+│   └── grp_2_1.crt
 ├── bundle_private  # if 'create_bundle: true' | bundles including private-key
-│   ├── app_1_1.pem
-│   └── app_2_1.pem
+│   ├── grp_1_1.pem
+│   └── grp_2_1.pem
 ├── certs  # public-keys
-│   ├── app_1_1.crt
-│   └── app_2_1.crt
+│   ├── grp_1_1.crt
+│   └── grp_2_1.crt
 └── private  # private-keys
-    ├── app_1_1.key
-    └── app_2_1.key
+    ├── grp_1_1.key
+    └── grp_2_1.key
 
 root@srv:/var/local/acme# ls -l
 drwx------ 2 acme acme     4096 Jan  5 23:32 account
@@ -165,14 +165,14 @@ drwxr-x--- 2 acme ssl-cert 4096 Jan  5 23:34 private
 root@srv:/var/local/acme# ls -l */*
 -rw------- 1 acme acme      227 Jan  5 23:32 account/account_09ff80dda58a752729e0506d726ba47590ff1413129666b581a2eee1fa01449b.key
 -rw------- 1 acme acme      227 Jan  5 23:32 account/account_3bfae30343be0ae9c6709cc568ac155d2c3cb562fdf487f6e858b8cd0006cd27.key
--rw-r--r-- 1 acme ssl-cert 3831 Jan  5 23:33 bundle_certs/app_1_1.crt
--rw-r--r-- 1 acme ssl-cert 3831 Jan  5 23:33 bundle_certs/app_2_1.crt
--rw-r----- 1 acme ssl-cert 5510 Jan  5 23:33 bundle_private/app_1_1.pem
--rw-r----- 1 acme ssl-cert 5506 Jan  5 23:33 bundle_private/app_2_1.pem
--rw-r--r-- 1 acme ssl-cert 1935 Jan  5 23:33 certs/app_1_1.crt
--rw-r--r-- 1 acme ssl-cert 1935 Jan  5 23:33 certs/app_2_1.crt
--rw-r----- 1 acme ssl-cert 1679 Jan  5 23:33 private/app_1_1.key
--rw-r----- 1 acme ssl-cert 1675 Jan  5 23:33 private/app_2_1.key
+-rw-r--r-- 1 acme ssl-cert 3831 Jan  5 23:33 bundle_certs/grp_1_1.crt
+-rw-r--r-- 1 acme ssl-cert 3831 Jan  5 23:33 bundle_certs/grp_2_1.crt
+-rw-r----- 1 acme ssl-cert 5510 Jan  5 23:33 bundle_private/grp_1_1.pem
+-rw-r----- 1 acme ssl-cert 5506 Jan  5 23:33 bundle_private/grp_2_1.pem
+-rw-r--r-- 1 acme ssl-cert 1935 Jan  5 23:33 certs/grp_1_1.crt
+-rw-r--r-- 1 acme ssl-cert 1935 Jan  5 23:33 certs/grp_2_1.crt
+-rw-r----- 1 acme ssl-cert 1679 Jan  5 23:33 private/grp_1_1.key
+-rw-r----- 1 acme ssl-cert 1675 Jan  5 23:33 private/grp_2_1.key
 ```
 
 #### Output / Logs

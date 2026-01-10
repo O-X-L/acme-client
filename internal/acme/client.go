@@ -197,6 +197,13 @@ zoneee
 zonomi`
 )
 
+var (
+	PROVIDERS_HTTP = map[string]string{
+		"letsencrypt":         lego.LEDirectoryProduction,
+		"letsencrypt_staging": lego.LEDirectoryStaging,
+	}
+)
+
 func NewACMEClientHttp(user *User, caURL, webrootPath string) (*lego.Client, error) {
 	config := lego.NewConfig(user)
 	config.CADirURL = caURL

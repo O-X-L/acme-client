@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"git.oxl.at/acme-client/internal/acme"
@@ -61,12 +62,17 @@ func main() {
 	var pathConfig string
 	var showProviders bool
 	flag.StringVar(&pathConfig, "c", "acme.yml", "Path to config file")
-	flag.BoolVar(&showProviders, "show-providers", false, "Only show supported DNS-providers and exit")
+	flag.BoolVar(&showProviders, "show-providers", false, "Only show supported DNS-providers & HTTP-Provider aliases and exit")
 	flag.BoolVar(&config.CheckMode, "check", false, "Only validate the config-file")
 	flag.Parse()
 
 	if showProviders {
-		fmt.Printf("Supported DNS-Providers:\n\n%v\n", acme.PROVIDERS_DNS)
+		fmt.Printf("Supported DNS-Providers:\n\n%v\n\n", acme.PROVIDERS_DNS)
+		httpProvider := []string{}
+		for k, v := range acme.PROVIDERS_HTTP {
+			httpProvider = append(httpProvider, fmt.Sprintf("%s => %s", k, v))
+		}
+		fmt.Printf("HTTP-Provider Keys:\n\n%v\n", strings.Join(httpProvider, "\n"))
 		os.Exit(0)
 	}
 

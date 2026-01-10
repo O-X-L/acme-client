@@ -83,6 +83,13 @@ func validateGroup(grp string) error {
 	return nil
 }
 
+func translateHTTPProvider(provider string) (string, error) {
+	if url, exists := acme.PROVIDERS_HTTP[provider]; exists {
+		return url, nil
+	}
+	return "", fmt.Errorf("not found")
+}
+
 func validateCertConfig(cert GroupCert) error {
 	switch cert.ChallengeType {
 	case CHALLENGE_TYPE_DNS:
@@ -103,7 +110,11 @@ func validateCertConfig(cert GroupCert) error {
 			}
 		}
 		if !u.RegexMatch(oxl_validate_regex.REGEX_URL_SIMPLE, cert.Provider) {
-			return fmt.Errorf("provider for http-01 should be a valid URL: %s", cert.Provider)
+			url, err := translateHTTPProvider(cert.Provider)
+			if err != nil {
+				return fmt.Errorf("provider for http-01 should be a valid URL or key: %s", cert.Provider)
+			}
+			cert.Provider = url
 		}
 
 	default:

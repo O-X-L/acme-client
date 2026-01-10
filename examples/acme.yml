@@ -25,7 +25,7 @@ groups:
 
       - id: 2
         challenge_type: "http-01"
-        provider: "https://acme-staging-v02.api.letsencrypt.org/directory"
+        provider: "letsencrypt_staging"
         domains:
           - 'ddd.waf.alpenmesh.com'
           - 'eee.waf.alpenmesh.com'
@@ -36,7 +36,7 @@ groups:
     certs:
       - id: 1
         challenge_type: "http-01"
-        provider: "https://acme-staging-v02.api.letsencrypt.org/directory"
+        provider: "letsencrypt_staging"
         domains:
           - 'fff.waf.alpenmesh.com'
           - 'ggg.waf.alpenmesh.com'
