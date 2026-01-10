@@ -80,14 +80,14 @@ func main() {
 
 	cnf, err := config.LoadConfig(pathConfig)
 	if err != nil {
-		u.LogError(fmt.Sprintf("Failed to load config: %v", err))
+		u.LogErrorf("Failed to load config: %v", err)
 		os.Exit(1)
 	}
 	config.Config = cnf
 
 	err = config.ValidateConfig(cnf)
 	if err != nil {
-		u.LogError(fmt.Sprintf("Got invalid config: %v", err))
+		u.LogErrorf("Got invalid config: %v", err)
 		os.Exit(1)
 	}
 
@@ -102,7 +102,7 @@ func main() {
 
 	err = initCertDir()
 	if err != nil {
-		u.LogError(fmt.Sprintf("%v", err))
+		u.LogErrorf("%v", err)
 		os.Exit(1)
 	}
 
@@ -110,7 +110,7 @@ func main() {
 		testFile := filepath.Join(config.Config.PathWeb, ".test")
 		err = os.WriteFile(testFile, []byte(""), 0644)
 		if err != nil {
-			u.LogError(fmt.Sprintf("configured path_web is not writable: %v", err))
+			u.LogErrorf("configured path_web is not writable: %v", err)
 			os.Exit(1)
 		}
 		os.Remove(testFile)

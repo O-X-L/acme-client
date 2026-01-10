@@ -1,6 +1,7 @@
 package u
 
 import (
+	"fmt"
 	"log"
 	"os"
 )
@@ -37,14 +38,26 @@ func Log(m string) {
 	log.Printf("[INFO] %v\n", m)
 }
 
+func Logf(m string, params ...any) {
+	Log(fmt.Sprintf(m, params...))
+}
+
 func LogError(m string) {
 	log.SetOutput(os.Stderr)
 	log.Printf("[ERROR] %v\n", m)
 }
 
+func LogErrorf(m string, params ...any) {
+	LogError(fmt.Sprintf(m, params...))
+}
+
 func LogWarning(m string) {
 	log.SetOutput(os.Stderr)
 	log.Printf("[WARN] %v\n", m)
+}
+
+func LogWarningf(m string, params ...any) {
+	LogWarning(fmt.Sprintf(m, params...))
 }
 
 func InitLogModes() {

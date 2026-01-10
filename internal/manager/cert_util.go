@@ -106,7 +106,7 @@ func SetOwnership(path string) {
 	}
 	gid, err := u.GetGroupID(config.Config.FileGroup)
 	if err != nil {
-		u.LogError(fmt.Sprintf("%v", err))
+		u.LogErrorf("%v", err)
 		return
 	}
 	os.Chown(path, -1, gid)
