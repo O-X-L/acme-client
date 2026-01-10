@@ -31,10 +31,10 @@ const (
 	DIR_CERTS_PUBLIC       = "certs"
 	DIR_CERTS_PRIVATE      = "private"
 	DIR_WEB_ACME_CHALLENGE = ".well-known/acme-challenge"
-	VERSION                = "1.0.2"
+	VERSION                = "1.1.0"
 )
 
-type AppCert struct {
+type GroupCert struct {
 	ID             uint              `yaml:"id" required:"true"`
 	Provider       string            `yaml:"provider" required:"true"` // URL if HTTP-01 else one of the listed DNS-providers
 	ProviderConfig map[string]string `yaml:"provider_config"`          // env-vars for DNS-01
@@ -42,15 +42,15 @@ type AppCert struct {
 	Domains        []string          `yaml:"domains" validate:"domain_wildcard"`
 }
 
-type App struct {
-	Name  string    `yaml:"name" required:"true"`
-	ID    uint      `yaml:"id" required:"true"`
-	Certs []AppCert `yaml:"certs"`
+type Group struct {
+	Name  string      `yaml:"name" required:"true"`
+	ID    uint        `yaml:"id" required:"true"`
+	Certs []GroupCert `yaml:"certs"`
 }
 
 type ConfigFile struct {
 	Email        string      `yaml:"email" validate:"email" required:"true"`
-	Apps         []App       `yaml:"apps"`
+	Groups       []Group     `yaml:"groups"`
 	Retries      uint        `yaml:"retries" default:"0"`
 	CooldownSec  uint        `yaml:"cooldown_sec" default:"1"`        // do not overwhelm the ACME service with requests - speed is not that important for requesting certs
 	PathWeb      string      `yaml:"path_web" validate:"path_simple"` // only required if certs use http-01

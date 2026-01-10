@@ -11,7 +11,7 @@ file_mode_key: 0640
 file_group: 'ssl-cert'
 hook_cmd: 'echo "DONE"'
 
-apps:
+groups:
   - name: "App #1"
     id: 1
     certs:

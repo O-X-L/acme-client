@@ -53,21 +53,21 @@ func ValidateConfig(cnf *ConfigFile) error {
 		u.LogWarning("The file_mode_key is too permissive! It's recommended to change it to 0640 or lower!")
 	}
 
-	appIDs := []uint{}
-	for _, app := range cnf.Apps {
-		if slices.Contains(appIDs, app.ID) {
-			return fmt.Errorf("got duplicate App-ID: '%s' (%d)", app.Name, app.ID)
+	groupIDs := []uint{}
+	for _, grp := range cnf.Groups {
+		if slices.Contains(groupIDs, grp.ID) {
+			return fmt.Errorf("got duplicate Group-ID: '%s' (%d)", grp.Name, grp.ID)
 		}
-		appIDs = append(appIDs, app.ID)
+		groupIDs = append(groupIDs, grp.ID)
 
 		certIDs := []uint{}
-		for _, cert := range app.Certs {
+		for _, cert := range grp.Certs {
 			if slices.Contains(certIDs, cert.ID) {
-				return fmt.Errorf("got duplicate Certificate-ID: app '%s' (%d - %d)", app.Name, app.ID, cert.ID)
+				return fmt.Errorf("got duplicate Certificate-ID: group '%s' (%d - %d)", grp.Name, grp.ID, cert.ID)
 			}
 			certIDs = append(certIDs, cert.ID)
 			if err := validateCertConfig(cert); err != nil {
-				return fmt.Errorf("got invalid certificate config: app '%s' (%d - %d) %v", app.Name, app.ID, cert.ID, err)
+				return fmt.Errorf("got invalid certificate config: group '%s' (%d - %d) %v", grp.Name, grp.ID, cert.ID, err)
 			}
 		}
 	}
@@ -83,7 +83,7 @@ func validateGroup(grp string) error {
 	return nil
 }
 
-func validateCertConfig(cert AppCert) error {
+func validateCertConfig(cert GroupCert) error {
 	switch cert.ChallengeType {
 	case CHALLENGE_TYPE_DNS:
 		if !acme.IsSupportedProvider(cert.Provider) {

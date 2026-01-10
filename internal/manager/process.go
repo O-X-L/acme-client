@@ -22,11 +22,12 @@ import (
 	"git.oxl.at/acme-client/pkg/config"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
+	acme_logger "github.com/go-acme/lego/v4/log"
 	"github.com/go-acme/lego/v4/registration"
 )
 
-func processCert(app config.App, cert config.AppCert) (bool, error) {
-	key := fmt.Sprintf("[App: %d '%s' | Cert: %d]", app.ID, app.Name, cert.ID)
+func processCert(grp config.Group, cert config.GroupCert) (bool, error) {
+	key := fmt.Sprintf("[Group: %d '%s' | Cert: %d]", grp.ID, grp.Name, cert.ID)
 	u.Log(fmt.Sprintf("%s processing...", key))
 
 	if len(cert.Domains) == 0 {
@@ -41,7 +42,7 @@ func processCert(app config.App, cert config.AppCert) (bool, error) {
 		u.LogWarning(fmt.Sprintf("%s has %d duplicate domains configured", key, providedDomainCount-uniqueDomainCount))
 	}
 
-	certBaseName := fmt.Sprintf("app_%d_%d", app.ID, cert.ID)
+	certBaseName := fmt.Sprintf("grp_%d_%d", grp.ID, cert.ID)
 
 	updateNeeded, reason := NeedsUpdate(certBaseName, cert.Domains)
 	if !updateNeeded {
@@ -67,7 +68,7 @@ func processCert(app config.App, cert config.AppCert) (bool, error) {
 	return false, fmt.Errorf("failed")
 }
 
-func obtainCert(name string, cert config.AppCert) error {
+func obtainCert(name string, cert config.GroupCert) error {
 	user, err := getOrCreateACMEUser(cert.Provider)
 	if err != nil {
 		return err
@@ -168,15 +169,17 @@ func ensureACMEUserRegistration(client *lego.Client, user *acme.User) error {
 }
 
 func Run() {
+	acme_logger.Logger = log.New(os.Stdout, "[ACME] ", log.LstdFlags)
+
 	anyChanged := false
 
-	for _, app := range config.Config.Apps {
-		for _, cert := range app.Certs {
-			changed, err := processCert(app, cert)
+	for _, grp := range config.Config.Groups {
+		for _, cert := range grp.Certs {
+			changed, err := processCert(grp, cert)
 			if err != nil {
 				u.LogError(fmt.Sprintf(
 					"[%s] failed to obtain certificate %d (%d domains) via challenge '%s' of provider '%s'",
-					app.Name, cert.ID, len(cert.Domains), cert.ChallengeType, cert.Provider,
+					grp.Name, cert.ID, len(cert.Domains), cert.ChallengeType, cert.Provider,
 				))
 
 			} else if changed {

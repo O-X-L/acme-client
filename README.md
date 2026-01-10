@@ -15,6 +15,14 @@ This ACME-client is based on the awesome [go-acme/lego](https://github.com/go-ac
 
 This client enables you to supply a simple configuration-file that will request certificates and save them to your filesystem - similar to how [dehydrated](https://github.com/dehydrated-io/dehydrated) does.
 
+It also checks [if existing certificates need to be re-created](https://github.com/O-X-L/acme-client/blob/latest/internal/manager/cert_util.go#L20) - if:
+
+* Its lifetime is below the configured `renewal_days`
+* A file is missing (*cert/key/bundle*)
+* It has an invalid format (*corrupted*)
+* Its public/private keypair does not match
+* Configured domains do not match the ones in the certificate-SAN
+
 ----
 
 ## Usage
@@ -66,7 +74,7 @@ file_mode_key: 0640  # default: 0600
 file_group: 'ssl-cert'  # default: primary group of service-user
 hook_cmd: 'echo "DONE"'  # hook command to be ran after all certificates were processed AND something changed
 
-apps:
+groups:
   - name: "App #1"
     id: 1
     certs:
@@ -92,6 +100,8 @@ apps:
 
 For DNS-Provider config see: [go-acme/lego documentation](https://go-acme.github.io/lego/dns/index.html)
 
+**WARNING**: If the group- or certificate-ID is changed the ACME-client does see all as changed and has to renew them all.
+
 See also: [Examples](https://github.com/O-X-L/acme-client/blob/latest/examples/)
 
 ----
@@ -104,7 +114,7 @@ See also: [Examples](https://github.com/O-X-L/acme-client/blob/latest/examples/)
 > Usage of build/acme:
 >   -check
 >         Only validate the config-file
->   -path-cnf string
+>   -c string
 >         Path to config file (default "acme.yml")
 >   -show-providers
 >         Only show supported DNS-providers and exit
@@ -116,11 +126,11 @@ mv ./acme /usr/local/bin/acme
 /usr/local/bin/acme -show-providers
 
 # run
-/usr/local/bin/acme -path-cnf /etc/acme/acme.yml
+/usr/local/bin/acme -c /etc/acme/acme.yml
 
 # to connect over proxy
 export HTTPS_PROXY=http://test-proxy.waf.alpenmesh.com:3128
-/usr/local/bin/acme -path-cnf /etc/acme/acme.yml
+/usr/local/bin/acme -c /etc/acme/acme.yml
 ```
 
 ----
