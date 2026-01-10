@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"sort"
+	"slices"
 	"time"
 
 	"git.oxl.at/acme-client/internal/u"
@@ -76,11 +76,14 @@ func NeedsUpdate(baseName string, desired []string) (bool, string) {
 		return true, "expiring soon"
 	}
 
-	sort.Strings(desired)
-	actual := cert.DNSNames
-	sort.Strings(actual)
-	if !reflect.DeepEqual(desired, actual) {
-		return true, "domain mismatch"
+	desiredSorted := make([]string, len(desired))
+	copy(desiredSorted, desired)
+	existing := cert.DNSNames
+	slices.Sort(existing)
+	slices.Sort(desiredSorted)
+	if !reflect.DeepEqual(desiredSorted, existing) {
+		diff := u.BuildDiffString(u.BuildDiffMap(existing, desiredSorted))
+		return true, fmt.Sprintf("domain mismatch: %s", diff)
 	}
 
 	return false, ""

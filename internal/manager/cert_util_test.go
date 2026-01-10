@@ -386,11 +386,41 @@ func TestNeedsUpdate(t *testing.T) {
 
 	t.Run("Domain Sorting Persistence", func(t *testing.T) {
 		base := "sort_test"
-		os.WriteFile(filepath.Join(tmpDir, config.DIR_CERTS_PUBLIC, base+".crt"), []byte(rsaApp01Cert), 0644)
-		os.WriteFile(filepath.Join(tmpDir, config.DIR_CERTS_PRIVATE, base+".key"), []byte(rsaApp01Key), 0600)
+		os.WriteFile(filepath.Join(tmpDir, config.DIR_CERTS_PUBLIC, base+".crt"), []byte(ecApp02Cert), 0644)
+		os.WriteFile(filepath.Join(tmpDir, config.DIR_CERTS_PRIVATE, base+".key"), []byte(ecApp02Key), 0600)
 
-		// Provide domains in reverse order of how they appear in the cert [test.oxl.at, www.test.oxl.at]
-		revDomains := []string{"www.test.oxl.at", "test.oxl.at"}
+		// Provide domains in shuffled order
+		revDomains := []string{
+			"afhyeyph.test.oxl.at",
+			"azlxllyn.test.oxl.at", "bcbofipq.test.oxl.at", "bmkwnjpx.test.oxl.at", "bodfojlw.test.oxl.at",
+			"afosswfe.test.oxl.at", "akeghywx.test.oxl.at", "aqgmgmdj.test.oxl.at", "ayssbmcc.test.oxl.at",
+			"bscyzofe.test.oxl.at", "bvallonj.test.oxl.at", "bvienhys.test.oxl.at", "cexwafcg.test.oxl.at",
+			"cpsrasuj.test.oxl.at", "cqkpjxeo.test.oxl.at", "cycbkrgw.test.oxl.at", "dbrgwagi.test.oxl.at",
+			"dcbcmijm.test.oxl.at", "ddpbwzow.test.oxl.at", "dhtjodbh.test.oxl.at", "dmamdbmi.test.oxl.at",
+			"dveutegj.test.oxl.at", "ebiptgvc.test.oxl.at", "ecsykpqw.test.oxl.at", "efcyejoy.test.oxl.at",
+			"egnthbqw.test.oxl.at", "enokjgge.test.oxl.at", "ewudjmtw.test.oxl.at", "ezgogrjs.test.oxl.at",
+			"fcwpiekj.test.oxl.at", "fmekwgpb.test.oxl.at", "fpgknbrv.test.oxl.at", "fpmbabsk.test.oxl.at",
+			"fvhimhsl.test.oxl.at", "gatsrgus.test.oxl.at", "gelrgydf.test.oxl.at", "gfrvbtsg.test.oxl.at",
+			"grokvjer.test.oxl.at", "gvljejht.test.oxl.at", "halpjfpv.test.oxl.at", "hckjigej.test.oxl.at",
+			"hwyvhbkb.test.oxl.at", "hwzjtwxv.test.oxl.at", "iefuruzo.test.oxl.at", "ijcpwmhr.test.oxl.at",
+			"ilyrmaqz.test.oxl.at", "inangkhy.test.oxl.at", "iszgszdf.test.oxl.at", "keupnqyt.test.oxl.at",
+			"kgxefxvy.test.oxl.at", "kljkpsld.test.oxl.at", "klypjrnt.test.oxl.at", "kodwveln.test.oxl.at",
+			"lfbcvzoy.test.oxl.at", "lmovjgwj.test.oxl.at", "lpyuhusp.test.oxl.at", "lwmwciio.test.oxl.at",
+			"mouvlanw.test.oxl.at", "naqwzdut.test.oxl.at", "nbwowpwl.test.oxl.at", "nepdlwyj.test.oxl.at",
+			"nuejfwjr.test.oxl.at", "odokgdkl.test.oxl.at", "onraluul.test.oxl.at", "pbkhjwvu.test.oxl.at",
+			"pcdbsjhj.test.oxl.at", "piecgxhz.test.oxl.at", "pljbdhsd.test.oxl.at", "plpdjhwr.test.oxl.at",
+			"plyasjvf.test.oxl.at", "pxbzenck.test.oxl.at", "pzlpppgm.test.oxl.at", "qbflfhll.test.oxl.at",
+			"qxaeswjc.test.oxl.at", "qxqcccdj.test.oxl.at", "rhbowvcr.test.oxl.at", "rlbbldlo.test.oxl.at",
+			"rmtykizj.test.oxl.at", "ruwhyapt.test.oxl.at", "skgfqrab.test.oxl.at", "sruopwte.test.oxl.at",
+			"stogrono.test.oxl.at", "tfkbtqjk.test.oxl.at", "tlkjdlke.test.oxl.at", "uhjyoprz.test.oxl.at",
+			"uhlgiafk.test.oxl.at", "urzbwwkw.test.oxl.at", "vfgsiuax.test.oxl.at", "vgjwpyge.test.oxl.at",
+			"vmiyrsvv.test.oxl.at", "vozbsfup.test.oxl.at", "vrhqwfwy.test.oxl.at", "wbyiahkh.test.oxl.at",
+			"xjxuotih.test.oxl.at", "xnkradne.test.oxl.at", "xutfbgok.test.oxl.at", "xwztvkbu.test.oxl.at",
+			"xyoujspw.test.oxl.at", "yeeqxqlg.test.oxl.at", "yfztkkuw.test.oxl.at", "ygwzccso.test.oxl.at",
+			"wmdbmkzb.test.oxl.at", "wxjegjey.test.oxl.at", "xgrdijlv.test.oxl.at", "xhnkpvjz.test.oxl.at",
+			"yoceuakq.test.oxl.at", "zbmxxwry.test.oxl.at", "zgbgbgwx.test.oxl.at", "zihqqivb.test.oxl.at",
+			"zkpdxkey.test.oxl.at",
+		}
 
 		needed, reason := NeedsUpdate(base, revDomains)
 		if needed {
