@@ -20,7 +20,7 @@ It also checks [if existing certificates need to be re-created](https://github.c
 * Its lifetime is below the configured `renewal_days`
 * A file is missing (*cert/key/bundle*)
 * It has an invalid format (*corrupted*)
-* Its public/private keypair does not match
+* Its public/private keypair do not match
 * Configured domains do not match the ones in the certificate-SAN
 
 ----
