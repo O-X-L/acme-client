@@ -91,7 +91,7 @@ func validateGroup(grp string) error {
 	return nil
 }
 
-func translateHTTPProvider(provider string) (string, error) {
+func TranslateHTTPProvider(provider string) (string, error) {
 	if url, exists := acme.PROVIDERS_HTTP[provider]; exists {
 		return url, nil
 	}
@@ -119,11 +119,10 @@ func validateServiceConfig(svc Service) error {
 			}
 		}
 		if !u.RegexMatch(oxl_validate_regex.REGEX_URL_SIMPLE, svc.Provider) {
-			url, err := translateHTTPProvider(svc.Provider)
+			_, err := TranslateHTTPProvider(svc.Provider)
 			if err != nil {
-				return fmt.Errorf("provider for http-01 should be a valid URL or key: %s", svc.Provider)
+				return fmt.Errorf("provider for http-01 should be a valid URL or alias: %s", svc.Provider)
 			}
-			svc.Provider = url
 		}
 
 	default:

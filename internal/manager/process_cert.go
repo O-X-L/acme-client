@@ -30,16 +30,30 @@ func obtainCert(name string, svc config.Service, domains []string) error {
 		return nil
 	}
 
-	user, err := getOrCreateACMEUser(svc.Provider)
+	var provider string
+	if svc.ChallengeType == config.CHALLENGE_TYPE_DNS {
+		provider = svc.Provider
+
+	} else {
+		providerURL, err := config.TranslateHTTPProvider(svc.Provider)
+		if err == nil {
+			provider = providerURL
+
+		} else {
+			provider = svc.Provider
+		}
+	}
+
+	user, err := getOrCreateACMEUser(provider)
 	if err != nil {
 		return err
 	}
 
 	var client *lego.Client
 	if svc.ChallengeType == config.CHALLENGE_TYPE_DNS {
-		client, err = acme.NewACMEClientDns(user, svc.Provider, svc.ProviderConfig)
+		client, err = acme.NewACMEClientDns(user, provider, svc.ProviderConfig)
 	} else {
-		client, err = acme.NewACMEClientHttp(user, svc.Provider, config.Config.PathWeb)
+		client, err = acme.NewACMEClientHttp(user, provider, config.Config.PathWeb)
 	}
 	if err != nil {
 		return err
