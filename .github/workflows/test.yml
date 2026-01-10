@@ -1,6 +1,6 @@
 ---
 
-name: Unit Test
+name: Tests
 
 on:
   push:
