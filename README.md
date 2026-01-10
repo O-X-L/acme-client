@@ -103,7 +103,7 @@ groups:
 
 For DNS-Provider config see: [go-acme/lego documentation](https://go-acme.github.io/lego/dns/index.html)
 
-**WARNING**: If the group- or certificate-ID is changed the ACME-client does see all as changed and has to renew them all.
+**WARNING**: A change to the Group-ID or Service-ID will trigger a renewal for those certificates.
 
 See also: [Examples](https://github.com/O-X-L/acme-client/blob/latest/examples/)
 
