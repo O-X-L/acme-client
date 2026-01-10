@@ -9,7 +9,7 @@
 ----
 
 [![Lint](https://github.com/O-X-L/acme-client/actions/workflows/lint.yml/badge.svg?branch=latest)](https://github.com/O-X-L/acme-client/actions/workflows/lint.yml)
-[![Unit Test](https://github.com/O-X-L/acme-client/actions/workflows/unit_test.yml/badge.svg?branch=latest)](https://github.com/O-X-L/acme-client/actions/workflows/unit_test.yml)
+[![Tests](https://github.com/O-X-L/acme-client/actions/workflows/test.yml/badge.svg?branch=latest)](https://github.com/O-X-L/acme-client/actions/workflows/test.yml)
 
 This ACME-client is based on the awesome [go-acme/lego](https://github.com/go-acme/lego) library. ❤️
 
@@ -115,12 +115,14 @@ See also: [Examples](https://github.com/O-X-L/acme-client/blob/latest/examples/)
 ./acme --help
 > OXL ACME-Client | Version: 1.1.0 | License: MIT | Repo: https://git.OXL.at/acme-client | © 2026 OXL IT Services
 > Usage of build/acme:
->   -check
->         Only validate the config-file
 >   -c string
 >         Path to config file (default "acme.yml")
+>   -check
+>         Try-run mode without actually processing
 >   -show-providers
->         Only show supported DNS-providers & HTTP-Provider aliases
+>         Only show supported DNS-providers & HTTP-Provider aliases and exit
+>   -validate
+>         Only validate the config-file
 
 # move to permanent directory after upload
 mv ./acme /usr/local/bin/acme

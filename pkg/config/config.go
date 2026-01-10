@@ -18,7 +18,8 @@ var (
 	PathCertsBundlePublic  string
 	PathCertsBundlePrivate string
 	RenewalDays            time.Duration
-	CheckMode              bool
+	ModeCheck              bool
+	ModeValidate           bool
 )
 
 const (

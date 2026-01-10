@@ -1,14 +1,17 @@
 ---
 
-email: 'test@waf.alpenmesh.com'
-retries: 1
-cooldown_sec: 1
-path_web: '/var/www/acme-test'
-path_certs: '/tmp/acme-test'
-create_bundle: true
+path_web: '/tmp/acme-www'
+path_certs: '/tmp/acme-certs'
 file_mode_cert: 0644
 file_mode_key: 0640
 file_group: 'ssl-cert'
+create_bundle: true
+
+email: 'test@waf.alpenmesh.com'
+retries: 1
+cooldown_sec: 2
+renewal_days: 14
+max_domains: 3
 # hook_cmd: 'sudo systemctl reload haproxy.service'
 # hook_cmd: 'touch /tmp/acme-test/reload-required'
 
@@ -42,6 +45,8 @@ groups:
           - 'fff.waf.alpenmesh.com'
           - 'ggg.waf.alpenmesh.com'
           - 'hhh.waf.alpenmesh.com'
+          # batch 2
+          - 'kkk.waf.alpenmesh.com'
 
   - name: "App #3"
     id: 3

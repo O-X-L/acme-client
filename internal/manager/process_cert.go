@@ -15,7 +15,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"git.oxl.at/acme-client/internal/acme"
 	"git.oxl.at/acme-client/internal/u"
@@ -26,73 +25,11 @@ import (
 	"github.com/go-acme/lego/v4/registration"
 )
 
-func processDomainBatch(grp config.Group, svc config.Service, batchID int, domains []string) (bool, error) {
-	key := fmt.Sprintf("[Group: %d '%s' | Service: %d | Batch: %d]", grp.ID, grp.Name, svc.ID, batchID)
-	certBaseName := fmt.Sprintf("%d_%d_%d", grp.ID, svc.ID, batchID)
-
-	updateNeeded, reason := NeedsUpdate(certBaseName, domains)
-	if !updateNeeded {
-		u.Logf("%s skipping: cert is valid", key)
-		return false, nil
-	}
-
-	u.Logf("%s updating: %s", key, reason)
-
-	for attempt := uint(0); attempt <= config.Config.Retries; attempt++ {
-		time.Sleep(time.Second * time.Duration(config.Config.CooldownSec))
-		u.Logf("%s obtaining certificate...", key)
-		err := obtainCert(certBaseName, svc, domains)
-		if err == nil {
-			return true, nil
-		}
-		u.LogWarningf("%s attempt %d failed: \"%v\"", key, attempt+1, err)
-	}
-
-	u.LogWarningf("%s could not process certificate after %d retries", key, config.Config.Retries)
-	return false, fmt.Errorf("failed")
-}
-
-func processDomainsInBatches(
-	grp config.Group, svc config.Service, domains []string,
-	callback func(config.Group, config.Service, int, []string) (bool, error),
-) (bool, int, error) {
-	anyChanged := false
-	var err error
-	processedBatches := 0
-	for batchID, batchDomains := range u.BuildBatches(domains, int(config.Config.MaxDomains)) {
-		processedBatches += 1
-		changed, err := callback(grp, svc, batchID+1, batchDomains)
-		if changed {
-			anyChanged = true
-		}
-		if err != nil {
-			return anyChanged, processedBatches, err
-		}
-	}
-	return anyChanged, processedBatches, err
-}
-
-func processService(grp config.Group, svc config.Service) (bool, error) {
-	key := fmt.Sprintf("[Group: %d '%s' | Service: %d]", grp.ID, grp.Name, svc.ID)
-	u.Logf("%s processing...", key)
-
-	if len(svc.Domains) == 0 {
-		u.Logf("%s skipping: service has no domains configured", key)
-		return false, nil
-	}
-
-	providedDomainCount := len(svc.Domains)
-	svc.Domains = u.RemoveDuplicates(svc.Domains)
-	uniqueDomainCount := len(svc.Domains)
-	if uniqueDomainCount != providedDomainCount {
-		u.LogWarningf("%s has %d duplicate domains configured", key, providedDomainCount-uniqueDomainCount)
-	}
-
-	changed, _, err := processDomainsInBatches(grp, svc, svc.Domains, processDomainBatch)
-	return changed, err
-}
-
 func obtainCert(name string, svc config.Service, domains []string) error {
+	if config.ModeCheck {
+		return nil
+	}
+
 	user, err := getOrCreateACMEUser(svc.Provider)
 	if err != nil {
 		return err

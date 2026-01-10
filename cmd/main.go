@@ -63,7 +63,8 @@ func main() {
 	var showProviders bool
 	flag.StringVar(&pathConfig, "c", "acme.yml", "Path to config file")
 	flag.BoolVar(&showProviders, "show-providers", false, "Only show supported DNS-providers & HTTP-Provider aliases and exit")
-	flag.BoolVar(&config.CheckMode, "check", false, "Only validate the config-file")
+	flag.BoolVar(&config.ModeValidate, "validate", false, "Only validate the config-file")
+	flag.BoolVar(&config.ModeCheck, "check", false, "Try-run mode without actually processing")
 	flag.Parse()
 
 	if showProviders {
@@ -95,7 +96,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if config.CheckMode {
+	if config.ModeValidate {
 		u.Log("Config is valid")
 		os.Exit(0)
 	}

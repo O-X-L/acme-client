@@ -21,16 +21,17 @@ func ValidateConfig(cnf *ConfigFile) error {
 		pathWebAcmeChallenge := filepath.Join(Config.PathWeb, DIR_WEB_ACME_CHALLENGE)
 		if _, err := os.Stat(pathWebAcmeChallenge); err != nil {
 			err := fmt.Errorf("ACME-challenge directory does not exist: %s", pathWebAcmeChallenge)
-			if CheckMode {
+			if ModeValidate {
 				u.LogWarningf("%v", err)
+
 			} else {
 				return err
 			}
 		}
 	}
 
-	if cnf.Retries >= 4 {
-		return fmt.Errorf("retries must be < 4")
+	if cnf.Retries > 3 {
+		return fmt.Errorf("retries must be <= 3")
 	}
 
 	if cnf.CooldownSec < 1 {
@@ -110,8 +111,9 @@ func validateServiceConfig(svc Service) error {
 		}
 		if _, err := os.Stat(Config.PathWeb); os.IsNotExist(err) {
 			errMsg := fmt.Errorf("webroot dir for http-01 does not exist: %s (.well-known/acme-challenge)", Config.PathWeb)
-			if CheckMode {
+			if ModeValidate {
 				u.LogWarningf("%v", errMsg)
+
 			} else {
 				return errMsg
 			}

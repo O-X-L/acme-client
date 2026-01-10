@@ -7,14 +7,14 @@ on:
     branches: [latest]
     paths:
       - '**.go'
-      - '.github/workflows/unit_test.yml'
+      - '.github/workflows/test.yml'
       - 'scripts/unit_test.sh'
       - 'examples/acme.yml'
   pull_request:
     branches: [latest]
     paths:
       - '**.go'
-      - '.github/workflows/unit_test.yml'
+      - '.github/workflows/test.yml'
       - 'scripts/unit_test.sh'
       - 'examples/acme.yml'
   workflow_dispatch:
@@ -62,8 +62,13 @@ jobs:
         env:
           MODE_TEST: '1'
 
-      - name: Running Go Tests
+      - name: Running Unit-Tests
         run: bash scripts/unit_test.sh
 
-      - name: Testing check-mode (validating example-config)
-        run: build/acme -c $(pwd)/examples/acme.yml -check
+      - name: Testing validation-mode
+        run: ./build/acme -c $(pwd)/examples/acme.yml -validate
+
+      - name: Testing check-mode
+        run: |
+          mkdir -p /tmp/acme-certs /tmp/acme-www/.well-known/acme-challenge
+          ./build/acme -c $(pwd)/examples/acme.yml -check

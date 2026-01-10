@@ -33,6 +33,10 @@ func LogDebug(m string) {
 	}
 }
 
+func LogDebugf(m string, params ...any) {
+	LogDebug(fmt.Sprintf(m, params...))
+}
+
 func Log(m string) {
 	log.SetOutput(os.Stdout)
 	log.Printf("[INFO] %v\n", m)
