@@ -26,9 +26,9 @@ import (
 	"github.com/go-acme/lego/v4/registration"
 )
 
-func processCertBatch(grp config.Group, cert config.Certificate, batchID int, domains []string) (bool, error) {
-	key := fmt.Sprintf("[Group: %d '%s' | Cert: %d | Batch: %d]", grp.ID, grp.Name, cert.ID, batchID)
-	certBaseName := fmt.Sprintf("%d_%d_%d", grp.ID, cert.ID, batchID)
+func processDomainBatch(grp config.Group, svc config.Service, batchID int, domains []string) (bool, error) {
+	key := fmt.Sprintf("[Group: %d '%s' | Service: %d | Batch: %d]", grp.ID, grp.Name, svc.ID, batchID)
+	certBaseName := fmt.Sprintf("%d_%d_%d", grp.ID, svc.ID, batchID)
 
 	updateNeeded, reason := NeedsUpdate(certBaseName, domains)
 	if !updateNeeded {
@@ -41,7 +41,7 @@ func processCertBatch(grp config.Group, cert config.Certificate, batchID int, do
 	for attempt := uint(0); attempt <= config.Config.Retries; attempt++ {
 		time.Sleep(time.Second * time.Duration(config.Config.CooldownSec))
 		u.Logf("%s obtaining certificate...", key)
-		err := obtainCert(certBaseName, cert, domains)
+		err := obtainCert(certBaseName, svc, domains)
 		if err == nil {
 			return true, nil
 		}
@@ -53,15 +53,15 @@ func processCertBatch(grp config.Group, cert config.Certificate, batchID int, do
 }
 
 func processDomainsInBatches(
-	grp config.Group, cert config.Certificate, domains []string,
-	callback func(config.Group, config.Certificate, int, []string) (bool, error),
+	grp config.Group, svc config.Service, domains []string,
+	callback func(config.Group, config.Service, int, []string) (bool, error),
 ) (bool, int, error) {
 	anyChanged := false
 	var err error
 	processedBatches := 0
 	for batchID, batchDomains := range u.BuildBatches(domains, int(config.Config.MaxDomains)) {
 		processedBatches += 1
-		changed, err := callback(grp, cert, batchID+1, batchDomains)
+		changed, err := callback(grp, svc, batchID+1, batchDomains)
 		if changed {
 			anyChanged = true
 		}
@@ -72,37 +72,37 @@ func processDomainsInBatches(
 	return anyChanged, processedBatches, err
 }
 
-func processCert(grp config.Group, cert config.Certificate) (bool, error) {
-	key := fmt.Sprintf("[Group: %d '%s' | Cert: %d]", grp.ID, grp.Name, cert.ID)
+func processService(grp config.Group, svc config.Service) (bool, error) {
+	key := fmt.Sprintf("[Group: %d '%s' | Service: %d]", grp.ID, grp.Name, svc.ID)
 	u.Logf("%s processing...", key)
 
-	if len(cert.Domains) == 0 {
-		u.Logf("%s skipping: cert has no domains configured", key)
+	if len(svc.Domains) == 0 {
+		u.Logf("%s skipping: service has no domains configured", key)
 		return false, nil
 	}
 
-	providedDomainCount := len(cert.Domains)
-	cert.Domains = u.RemoveDuplicates(cert.Domains)
-	uniqueDomainCount := len(cert.Domains)
+	providedDomainCount := len(svc.Domains)
+	svc.Domains = u.RemoveDuplicates(svc.Domains)
+	uniqueDomainCount := len(svc.Domains)
 	if uniqueDomainCount != providedDomainCount {
 		u.LogWarningf("%s has %d duplicate domains configured", key, providedDomainCount-uniqueDomainCount)
 	}
 
-	changed, _, err := processDomainsInBatches(grp, cert, cert.Domains, processCertBatch)
+	changed, _, err := processDomainsInBatches(grp, svc, svc.Domains, processDomainBatch)
 	return changed, err
 }
 
-func obtainCert(name string, cert config.Certificate, domains []string) error {
-	user, err := getOrCreateACMEUser(cert.Provider)
+func obtainCert(name string, svc config.Service, domains []string) error {
+	user, err := getOrCreateACMEUser(svc.Provider)
 	if err != nil {
 		return err
 	}
 
 	var client *lego.Client
-	if cert.ChallengeType == config.CHALLENGE_TYPE_DNS {
-		client, err = acme.NewACMEClientDns(user, cert.Provider, cert.ProviderConfig)
+	if svc.ChallengeType == config.CHALLENGE_TYPE_DNS {
+		client, err = acme.NewACMEClientDns(user, svc.Provider, svc.ProviderConfig)
 	} else {
-		client, err = acme.NewACMEClientHttp(user, cert.Provider, config.Config.PathWeb)
+		client, err = acme.NewACMEClientHttp(user, svc.Provider, config.Config.PathWeb)
 	}
 	if err != nil {
 		return err
@@ -198,12 +198,12 @@ func Run() {
 	anyChanged := false
 
 	for _, grp := range config.Config.Groups {
-		for _, cert := range grp.Certs {
-			changed, err := processCert(grp, cert)
+		for _, svc := range grp.Services {
+			changed, err := processService(grp, svc)
 			if err != nil {
 				u.LogErrorf(
-					"[%s] failed to obtain certificate %d (%d domains) via challenge '%s' of provider '%s'",
-					grp.Name, cert.ID, len(cert.Domains), cert.ChallengeType, cert.Provider,
+					"[%s] failed to obtain service-certs %d (%d domains) via challenge '%s' of provider '%s'",
+					grp.Name, svc.ID, len(svc.Domains), svc.ChallengeType, svc.Provider,
 				)
 
 			} else if changed {

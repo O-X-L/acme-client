@@ -67,14 +67,14 @@ func ValidateConfig(cnf *ConfigFile) error {
 		}
 		groupIDs = append(groupIDs, grp.ID)
 
-		certIDs := []uint{}
-		for _, cert := range grp.Certs {
-			if slices.Contains(certIDs, cert.ID) {
-				return fmt.Errorf("got duplicate Certificate-ID: group '%s' (%d - %d)", grp.Name, grp.ID, cert.ID)
+		serviceIDs := []uint{}
+		for _, svc := range grp.Services {
+			if slices.Contains(serviceIDs, svc.ID) {
+				return fmt.Errorf("got duplicate service-ID: group '%s' (%d - %d)", grp.Name, grp.ID, svc.ID)
 			}
-			certIDs = append(certIDs, cert.ID)
-			if err := validateCertConfig(cert); err != nil {
-				return fmt.Errorf("got invalid certificate config: group '%s' (%d - %d) %v", grp.Name, grp.ID, cert.ID, err)
+			serviceIDs = append(serviceIDs, svc.ID)
+			if err := validateServiceConfig(svc); err != nil {
+				return fmt.Errorf("got invalid service config: group '%s' (%d - %d) %v", grp.Name, grp.ID, svc.ID, err)
 			}
 		}
 	}
@@ -97,11 +97,11 @@ func translateHTTPProvider(provider string) (string, error) {
 	return "", fmt.Errorf("not found")
 }
 
-func validateCertConfig(cert Certificate) error {
-	switch cert.ChallengeType {
+func validateServiceConfig(svc Service) error {
+	switch svc.ChallengeType {
 	case CHALLENGE_TYPE_DNS:
-		if !acme.IsSupportedProvider(cert.Provider) {
-			return fmt.Errorf("unsupported dns-01 provider: %s", cert.Provider)
+		if !acme.IsSupportedProvider(svc.Provider) {
+			return fmt.Errorf("unsupported dns-01 provider: %s", svc.Provider)
 		}
 
 	case CHALLENGE_TYPE_HTTP:
@@ -116,16 +116,16 @@ func validateCertConfig(cert Certificate) error {
 				return errMsg
 			}
 		}
-		if !u.RegexMatch(oxl_validate_regex.REGEX_URL_SIMPLE, cert.Provider) {
-			url, err := translateHTTPProvider(cert.Provider)
+		if !u.RegexMatch(oxl_validate_regex.REGEX_URL_SIMPLE, svc.Provider) {
+			url, err := translateHTTPProvider(svc.Provider)
 			if err != nil {
-				return fmt.Errorf("provider for http-01 should be a valid URL or key: %s", cert.Provider)
+				return fmt.Errorf("provider for http-01 should be a valid URL or key: %s", svc.Provider)
 			}
-			cert.Provider = url
+			svc.Provider = url
 		}
 
 	default:
-		return fmt.Errorf("unsupported challenge-type: %s", cert.ChallengeType)
+		return fmt.Errorf("unsupported challenge-type: %s", svc.ChallengeType)
 	}
 
 	return nil

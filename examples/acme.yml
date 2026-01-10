@@ -9,12 +9,13 @@ create_bundle: true
 file_mode_cert: 0644
 file_mode_key: 0640
 file_group: 'ssl-cert'
-hook_cmd: 'echo "DONE"'
+# hook_cmd: 'sudo systemctl reload haproxy.service'
+# hook_cmd: 'touch /tmp/acme-test/reload-required'
 
 groups:
   - name: "App #1"
     id: 1
-    certs:
+    services:
       - id: 1
         challenge_type: "http-01"
         provider: "https://acme-staging-v02.api.letsencrypt.org/directory"
@@ -33,7 +34,7 @@ groups:
 
   - name: "App #2"
     id: 2
-    certs:
+    services:
       - id: 1
         challenge_type: "http-01"
         provider: "letsencrypt_staging"
@@ -44,7 +45,7 @@ groups:
 
   - name: "App #3"
     id: 3
-    certs:
+    services:
       - id: 1
         challenge_type: "dns-01"
         provider: "googledomains"

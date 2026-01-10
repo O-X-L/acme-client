@@ -48,7 +48,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 							{ID: 2, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
@@ -56,7 +56,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   2,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 							{ID: 2, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
@@ -79,7 +79,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -102,7 +102,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -124,7 +124,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -146,7 +146,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -168,14 +168,14 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -197,7 +197,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
@@ -220,7 +220,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -241,7 +241,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_DNS, Provider: "cloudflare", Domains: []string{"waf.alpenmesh.com"}},
 						},
 					},
@@ -262,7 +262,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_DNS, Provider: "cloudflare", Domains: []string{"*.waf.alpenmesh.com"}},
 						},
 					},
@@ -284,7 +284,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -310,39 +310,39 @@ func TestConfigValidateCertLogic(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		cert    Certificate
+		svc     Service
 		wantErr bool
 	}{
 		{
 			name:    "Invalid challenge type",
-			cert:    Certificate{ChallengeType: "dns-05"},
+			svc:     Service{ChallengeType: "dns-05"},
 			wantErr: true,
 		},
 		{
 			name:    "Unsupported challenge type",
-			cert:    Certificate{ChallengeType: "tls-alpn-01"},
+			svc:     Service{ChallengeType: "tls-alpn-01"},
 			wantErr: true,
 		},
 		{
 			name:    "Unsupported DNS provider",
-			cert:    Certificate{ChallengeType: CHALLENGE_TYPE_DNS, Provider: "unknown-cloud"},
+			svc:     Service{ChallengeType: CHALLENGE_TYPE_DNS, Provider: "unknown-cloud"},
 			wantErr: true,
 		},
 		{
 			name:    "HTTP-01 with non-URL provider",
-			cert:    Certificate{ChallengeType: CHALLENGE_TYPE_HTTP, Provider: "just-a-string"},
+			svc:     Service{ChallengeType: CHALLENGE_TYPE_HTTP, Provider: "just-a-string"},
 			wantErr: true,
 		},
 		{
 			name:    "Valid HTTP-01",
-			cert:    Certificate{ChallengeType: CHALLENGE_TYPE_HTTP, Provider: lego.LEDirectoryStaging},
+			svc:     Service{ChallengeType: CHALLENGE_TYPE_HTTP, Provider: lego.LEDirectoryStaging},
 			wantErr: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := validateCertConfig(tt.cert)
+			err := validateServiceConfig(tt.svc)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("%s: got error %v, wantErr %v", tt.name, err, tt.wantErr)
 			}
@@ -403,7 +403,7 @@ func TestConfigValidateSchema(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 							{ID: 2, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
@@ -411,7 +411,7 @@ func TestConfigValidateSchema(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   2,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 							{ID: 2, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
@@ -433,7 +433,7 @@ func TestConfigValidateSchema(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_DNS, Provider: "cloudflare", Domains: []string{"waf.alpenmesh.com"}},
 						},
 					},
@@ -454,7 +454,7 @@ func TestConfigValidateSchema(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []Certificate{
+						Services: []Service{
 							{ID: 1, ChallengeType: TYPE_DNS, Provider: "cloudflare", Domains: []string{"*.waf.alpenmesh.com"}},
 						},
 					},

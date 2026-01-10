@@ -76,7 +76,7 @@ func TestGetOrCreateACMEUser(t *testing.T) {
 
 func TestProcessDomainsInBatches(t *testing.T) {
 	config.Config.MaxDomains = 2
-	dummyCallback := func(grp config.Group, cert config.Certificate, id int, input []string) (bool, error) {
+	dummyCallback := func(grp config.Group, svc config.Service, id int, input []string) (bool, error) {
 		if slices.Contains(input, "eee") {
 			return false, fmt.Errorf("y")
 		}
@@ -86,7 +86,7 @@ func TestProcessDomainsInBatches(t *testing.T) {
 		return false, nil
 	}
 	dummyGrp := config.Group{}
-	dummyCert := config.Certificate{}
+	dummySvc := config.Service{}
 
 	tests := []struct {
 		name          string
@@ -134,7 +134,7 @@ func TestProcessDomainsInBatches(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			changed, procssedBatches, err := processDomainsInBatches(dummyGrp, dummyCert, tt.input, dummyCallback)
+			changed, procssedBatches, err := processDomainsInBatches(dummyGrp, dummySvc, tt.input, dummyCallback)
 
 			hasErr := err != nil
 			if changed != tt.wantChanged || hasErr != tt.wantErr || procssedBatches != tt.wantProcessed {

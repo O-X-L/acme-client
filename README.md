@@ -62,23 +62,25 @@ It expects a YAML config-file in this format:
 ```yaml
 ---
 
+path_web: '/var/www/acme'  # web-root-directory - has to contain '<path>/.well-known/acme-challenge/' and be writable for the service-user
+path_certs: '/var/local/acme'
+file_mode_cert: 0644  # default: 0640
+file_mode_key: 0640  # default: 0600
+file_group: 'ssl-cert'  # default: primary group of service-user
+create_bundle: true  # optionally create certificate bundles (public: cert+ca, private: cert+ca+pk)
+
 email: 'test@waf.alpenmesh.com'
 retries: 1  # retries per configured certificate if a validation error occurred
 cooldown_sec: 2  # seconds to wait between requests/retries
 renewal_days: 14  # default: 14; when cert-lifetime falls below - it gets renewed
-path_web: '/var/www/acme'  # web-root-directory - has to contain '<path>/.well-known/acme-challenge/' and be writable for the service-user
-path_certs: '/var/local/acme'
-create_bundle: true  # optionally create certificate bundles (public: cert+ca, private: cert+ca+pk)
-file_mode_cert: 0644  # default: 0640
-file_mode_key: 0640  # default: 0600
-file_group: 'ssl-cert'  # default: primary group of service-user
-hook_cmd: 'echo "DONE"'  # hook command to be ran after all certificates were processed AND something changed
 max_domains: 50  # default: 50; providers like letsencrypt have a hard-limit (100) and if you have many domains its more efficient for processing & when appending new ones (batches)
+
+hook_cmd: 'sudo systemctl reload haproxy.service'  # hook command to be ran after all certificates were processed AND something changed
 
 groups:
   - name: "App #1"
     id: 1
-    certs:
+    services:
       - id: 1
         challenge_type: "http-01"
         provider: "letsencrypt_staging"  # or use URL: https://acme-staging-v02.api.letsencrypt.org/directory
@@ -89,7 +91,7 @@ groups:
 
   - name: "App #2"
     id: 2
-    certs:
+    services:
       - id: 1
         challenge_type: "dns-01"
         provider: "cloudflare"
@@ -138,7 +140,7 @@ export HTTPS_PROXY=http://test-proxy.waf.alpenmesh.com:3128
 
 ### Result
 
-File format: `<Group-ID>_<Cert-ID>-<BatchID>`
+File format: `<Group-ID>_<Service-ID>-<Cert-/Batch-ID>`
 
 ```bash
 root@srv:/var/local/acme# tree

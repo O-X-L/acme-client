@@ -33,7 +33,7 @@ const (
 	VERSION                = "1.1.0"
 )
 
-type Certificate struct {
+type Service struct {
 	ID             uint              `yaml:"id" required:"true"`
 	Provider       string            `yaml:"provider" required:"true"` // URL if HTTP-01 else one of the listed DNS-providers
 	ProviderConfig map[string]string `yaml:"provider_config"`          // env-vars for DNS-01
@@ -42,9 +42,9 @@ type Certificate struct {
 }
 
 type Group struct {
-	Name  string        `yaml:"name" required:"true"`
-	ID    uint          `yaml:"id" required:"true"`
-	Certs []Certificate `yaml:"certs"`
+	Name     string    `yaml:"name" required:"true"`
+	ID       uint      `yaml:"id" required:"true"`
+	Services []Service `yaml:"services"`
 }
 
 type ConfigFile struct {
