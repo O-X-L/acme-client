@@ -9,7 +9,7 @@ PATH_BUILD="${PATH_BASE}/build"
 PATH_SRC="${PATH_BASE}"
 
 cd "$PATH_SRC"
-VERSION="$(cat "./internal/config/config.go" | grep VERSION | cut -d '=' -f2 | tr -d ' ' | tr -d '"')"
+VERSION="$(cat "./pkg/config/config.go" | grep VERSION | cut -d '=' -f2 | tr -d ' ' | tr -d '"')"
 
 mkdir -p "$PATH_BUILD"
 

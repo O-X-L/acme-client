@@ -60,7 +60,7 @@ func main() {
 
 	var pathConfig string
 	var showProviders bool
-	flag.StringVar(&pathConfig, "path-cnf", "acme.yml", "Path to config file")
+	flag.StringVar(&pathConfig, "c", "acme.yml", "Path to config file")
 	flag.BoolVar(&showProviders, "show-providers", false, "Only show supported DNS-providers and exit")
 	flag.BoolVar(&config.CheckMode, "check", false, "Only validate the config-file")
 	flag.Parse()
@@ -98,6 +98,16 @@ func main() {
 	if err != nil {
 		u.LogError(fmt.Sprintf("%v", err))
 		os.Exit(1)
+	}
+
+	if config.Config.PathWeb != "" {
+		testFile := filepath.Join(config.Config.PathWeb, ".test")
+		err = os.WriteFile(testFile, []byte(""), 0644)
+		if err != nil {
+			u.LogError(fmt.Sprintf("configured path_web is not writable: %v", err))
+			os.Exit(1)
+		}
+		os.Remove(testFile)
 	}
 
 	config.RenewalDays = time.Duration(config.Config.RenewalDays) * 24 * time.Hour
