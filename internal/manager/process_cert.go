@@ -150,12 +150,12 @@ func Run() {
 	}
 
 	if anyChanged && strings.TrimSpace(config.Config.HookCmd) != "" {
-		log.Printf("Executing hook: \"%s\"", config.Config.HookCmd)
+		u.Logf("Executing hook: \"%s\"", config.Config.HookCmd)
 		cmd := exec.Command("sh", "-c", config.Config.HookCmd)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		if err := cmd.Run(); err != nil {
-			log.Printf("Hook command failed: %v", err)
+			u.LogErrorf("Hook command failed: %v", err)
 		}
 	}
 }
