@@ -64,7 +64,7 @@ It expects a YAML config-file in this format:
 
 email: 'test@waf.alpenmesh.com'
 retries: 1  # retries per configured certificate if a validation error occurred
-cooldown_sec: 1  # seconds to wait between requests/retries
+cooldown_sec: 2  # seconds to wait between requests/retries
 renewal_days: 14  # default: 14; when cert-lifetime falls below - it gets renewed
 path_web: '/var/www/acme'  # web-root-directory - has to contain '<path>/.well-known/acme-challenge/' and be writable for the service-user
 path_certs: '/var/local/acme'
@@ -73,6 +73,7 @@ file_mode_cert: 0644  # default: 0640
 file_mode_key: 0640  # default: 0600
 file_group: 'ssl-cert'  # default: primary group of service-user
 hook_cmd: 'echo "DONE"'  # hook command to be ran after all certificates were processed AND something changed
+max_domains: 50  # default: 50; providers like letsencrypt have a hard-limit (100) and if you have many domains its more efficient for processing & when appending new ones (batches)
 
 groups:
   - name: "App #1"
@@ -137,23 +138,25 @@ export HTTPS_PROXY=http://test-proxy.waf.alpenmesh.com:3128
 
 ### Result
 
+File format: `<Group-ID>_<Cert-ID>-<BatchID>`
+
 ```bash
 root@srv:/var/local/acme# tree
 ├── account  # account cache
 │   ├── account_09ff80dda58a752729e0506d726ba47590ff1413129666b581a2eee1fa01449b.key
 │   └── account_3bfae30343be0ae9c6709cc568ac155d2c3cb562fdf487f6e858b8cd0006cd27.key
 ├── bundle_certs  # if 'create_bundle: true' | public-key bundles
-│   ├── grp_1_1.crt
-│   └── grp_2_1.crt
+│   ├── 1_1_1.crt
+│   └── 2_1_1.crt
 ├── bundle_private  # if 'create_bundle: true' | bundles including private-key
-│   ├── grp_1_1.pem
-│   └── grp_2_1.pem
+│   ├── 1_1_1.pem
+│   └── 2_1_1.pem
 ├── certs  # public-keys
-│   ├── grp_1_1.crt
-│   └── grp_2_1.crt
+│   ├── 1_1_1.crt
+│   └── 2_1_1.crt
 └── private  # private-keys
-    ├── grp_1_1.key
-    └── grp_2_1.key
+    ├── 1_1_1.key
+    └── 2_1_1.key
 
 root@srv:/var/local/acme# ls -l
 drwx------ 2 acme acme     4096 Jan  5 23:32 account
@@ -165,14 +168,14 @@ drwxr-x--- 2 acme ssl-cert 4096 Jan  5 23:34 private
 root@srv:/var/local/acme# ls -l */*
 -rw------- 1 acme acme      227 Jan  5 23:32 account/account_09ff80dda58a752729e0506d726ba47590ff1413129666b581a2eee1fa01449b.key
 -rw------- 1 acme acme      227 Jan  5 23:32 account/account_3bfae30343be0ae9c6709cc568ac155d2c3cb562fdf487f6e858b8cd0006cd27.key
--rw-r--r-- 1 acme ssl-cert 3831 Jan  5 23:33 bundle_certs/grp_1_1.crt
--rw-r--r-- 1 acme ssl-cert 3831 Jan  5 23:33 bundle_certs/grp_2_1.crt
--rw-r----- 1 acme ssl-cert 5510 Jan  5 23:33 bundle_private/grp_1_1.pem
--rw-r----- 1 acme ssl-cert 5506 Jan  5 23:33 bundle_private/grp_2_1.pem
--rw-r--r-- 1 acme ssl-cert 1935 Jan  5 23:33 certs/grp_1_1.crt
--rw-r--r-- 1 acme ssl-cert 1935 Jan  5 23:33 certs/grp_2_1.crt
--rw-r----- 1 acme ssl-cert 1679 Jan  5 23:33 private/grp_1_1.key
--rw-r----- 1 acme ssl-cert 1675 Jan  5 23:33 private/grp_2_1.key
+-rw-r--r-- 1 acme ssl-cert 3831 Jan  5 23:33 bundle_certs/1_1_1.crt
+-rw-r--r-- 1 acme ssl-cert 3831 Jan  5 23:33 bundle_certs/2_1_1.crt
+-rw-r----- 1 acme ssl-cert 5510 Jan  5 23:33 bundle_private/1_1_1.pem
+-rw-r----- 1 acme ssl-cert 5506 Jan  5 23:33 bundle_private/2_1_1.pem
+-rw-r--r-- 1 acme ssl-cert 1935 Jan  5 23:33 certs/1_1_1.crt
+-rw-r--r-- 1 acme ssl-cert 1935 Jan  5 23:33 certs/2_1_1.crt
+-rw-r----- 1 acme ssl-cert 1679 Jan  5 23:33 private/1_1_1.key
+-rw-r----- 1 acme ssl-cert 1675 Jan  5 23:33 private/2_1_1.key
 ```
 
 #### Output / Logs
@@ -184,7 +187,7 @@ First run:
 <details>
 
 ```
-OXL ACME-Client | Version: 1.0.0 | License: MIT | Repo: https://git.OXL.at/acme-client | © 2026 OXL IT Services
+OXL ACME-Client | Version: 1.1.0 | License: MIT | Repo: https://git.OXL.at/acme-client | © 2026 OXL IT Services
 2026/01/05 23:04:30 [INFO] [App: 1 'App #1' | Cert: 1] processing...
 2026/01/05 23:04:30 [INFO] [App: 1 'App #1' | Cert: 1] updating: certificate file missing
 2026/01/05 23:04:31 [INFO] [App: 1 'App #1' | Cert: 1] obtaining certificate...

@@ -26,12 +26,58 @@ import (
 	"github.com/go-acme/lego/v4/registration"
 )
 
-func processCert(grp config.Group, cert config.GroupCert) (bool, error) {
+func processCertBatch(grp config.Group, cert config.Certificate, batchID int, domains []string) (bool, error) {
+	key := fmt.Sprintf("[Group: %d '%s' | Cert: %d | Batch: %d]", grp.ID, grp.Name, cert.ID, batchID)
+	certBaseName := fmt.Sprintf("%d_%d_%d", grp.ID, cert.ID, batchID)
+
+	updateNeeded, reason := NeedsUpdate(certBaseName, domains)
+	if !updateNeeded {
+		u.Logf("%s skipping: cert is valid", key)
+		return false, nil
+	}
+
+	u.Logf("%s updating: %s", key, reason)
+
+	for attempt := uint(0); attempt <= config.Config.Retries; attempt++ {
+		time.Sleep(time.Second * time.Duration(config.Config.CooldownSec))
+		u.Logf("%s obtaining certificate...", key)
+		err := obtainCert(certBaseName, cert, domains)
+		if err == nil {
+			return true, nil
+		}
+		u.LogWarningf("%s attempt %d failed: \"%v\"", key, attempt+1, err)
+	}
+
+	u.LogWarningf("%s could not process certificate after %d retries", key, config.Config.Retries)
+	return false, fmt.Errorf("failed")
+}
+
+func processDomainsInBatches(
+	grp config.Group, cert config.Certificate, domains []string,
+	callback func(config.Group, config.Certificate, int, []string) (bool, error),
+) (bool, int, error) {
+	anyChanged := false
+	var err error
+	processedBatches := 0
+	for batchID, batchDomains := range u.BuildBatches(domains, int(config.Config.MaxDomains)) {
+		processedBatches += 1
+		changed, err := callback(grp, cert, batchID+1, batchDomains)
+		if changed {
+			anyChanged = true
+		}
+		if err != nil {
+			return anyChanged, processedBatches, err
+		}
+	}
+	return anyChanged, processedBatches, err
+}
+
+func processCert(grp config.Group, cert config.Certificate) (bool, error) {
 	key := fmt.Sprintf("[Group: %d '%s' | Cert: %d]", grp.ID, grp.Name, cert.ID)
-	u.Log(fmt.Sprintf("%s processing...", key))
+	u.Logf("%s processing...", key)
 
 	if len(cert.Domains) == 0 {
-		u.Log(fmt.Sprintf("%s skipping: cert has no domains configured", key))
+		u.Logf("%s skipping: cert has no domains configured", key)
 		return false, nil
 	}
 
@@ -39,36 +85,14 @@ func processCert(grp config.Group, cert config.GroupCert) (bool, error) {
 	cert.Domains = u.RemoveDuplicates(cert.Domains)
 	uniqueDomainCount := len(cert.Domains)
 	if uniqueDomainCount != providedDomainCount {
-		u.LogWarning(fmt.Sprintf("%s has %d duplicate domains configured", key, providedDomainCount-uniqueDomainCount))
+		u.LogWarningf("%s has %d duplicate domains configured", key, providedDomainCount-uniqueDomainCount)
 	}
 
-	certBaseName := fmt.Sprintf("grp_%d_%d", grp.ID, cert.ID)
-
-	updateNeeded, reason := NeedsUpdate(certBaseName, cert.Domains)
-	if !updateNeeded {
-		u.Log(fmt.Sprintf("%s skipping: cert is valid", key))
-		return false, nil
-	}
-
-	u.Log(fmt.Sprintf("%s updating: %s", key, reason))
-
-	for attempt := uint(0); attempt <= config.Config.Retries; attempt++ {
-		time.Sleep(time.Second * time.Duration(config.Config.CooldownSec))
-		u.Log(fmt.Sprintf("%s obtaining certificate...", key))
-		err := obtainCert(certBaseName, cert)
-		if err == nil {
-			return true, nil
-		}
-		u.LogWarning(fmt.Sprintf("%s attempt %d failed: \"%v\"", key, attempt+1, err))
-	}
-
-	u.LogWarning(
-		fmt.Sprintf("%s could not process certificate after %d retries", key, config.Config.Retries),
-	)
-	return false, fmt.Errorf("failed")
+	changed, _, err := processDomainsInBatches(grp, cert, cert.Domains, processCertBatch)
+	return changed, err
 }
 
-func obtainCert(name string, cert config.GroupCert) error {
+func obtainCert(name string, cert config.Certificate, domains []string) error {
 	user, err := getOrCreateACMEUser(cert.Provider)
 	if err != nil {
 		return err
@@ -89,7 +113,7 @@ func obtainCert(name string, cert config.GroupCert) error {
 	}
 
 	res, err := client.Certificate.Obtain(certificate.ObtainRequest{
-		Domains: cert.Domains,
+		Domains: domains,
 		Bundle:  false,
 	})
 
@@ -138,7 +162,7 @@ func getOrCreateACMEUser(provider string) (*acme.User, error) {
 	}
 
 	if privKey == nil {
-		u.Log(fmt.Sprintf("Generating new account key for %s", config.Config.Email))
+		u.Logf("Generating new account key for %s", config.Config.Email)
 		newKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 		if err != nil {
 			return nil, err
@@ -156,7 +180,7 @@ func getOrCreateACMEUser(provider string) (*acme.User, error) {
 func ensureACMEUserRegistration(client *lego.Client, user *acme.User) error {
 	reg, err := client.Registration.ResolveAccountByKey()
 	if err != nil {
-		u.Log(fmt.Sprintf("Registering new ACME account for %s", user.Email))
+		u.Logf("Registering new ACME account for %s", user.Email)
 		reg, err = client.Registration.Register(registration.RegisterOptions{
 			TermsOfServiceAgreed: true,
 		})
@@ -177,10 +201,10 @@ func Run() {
 		for _, cert := range grp.Certs {
 			changed, err := processCert(grp, cert)
 			if err != nil {
-				u.LogError(fmt.Sprintf(
+				u.LogErrorf(
 					"[%s] failed to obtain certificate %d (%d domains) via challenge '%s' of provider '%s'",
 					grp.Name, cert.ID, len(cert.Domains), cert.ChallengeType, cert.Provider,
-				))
+				)
 
 			} else if changed {
 				anyChanged = true

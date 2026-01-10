@@ -43,11 +43,12 @@ func TestConfigValidate(t *testing.T) {
 				FileModeCert: 0644,
 				FileModeKey:  0600,
 				CooldownSec:  1,
+				MaxDomains:   50,
 				Groups: []Group{
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 							{ID: 2, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
@@ -55,7 +56,7 @@ func TestConfigValidate(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   2,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 							{ID: 2, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
@@ -73,11 +74,12 @@ func TestConfigValidate(t *testing.T) {
 				FileModeCert: 0644,
 				FileModeKey:  0600,
 				CooldownSec:  1,
+				MaxDomains:   50,
 				Groups: []Group{
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -94,12 +96,13 @@ func TestConfigValidate(t *testing.T) {
 				FileModeCert: 0644,
 				FileModeKey:  0600,
 				CooldownSec:  1,
+				MaxDomains:   50,
 				FileGroup:    "does-not-exist",
 				Groups: []Group{
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -116,11 +119,12 @@ func TestConfigValidate(t *testing.T) {
 				FileModeCert: 0644,
 				FileModeKey:  0600,
 				CooldownSec:  0,
+				MaxDomains:   50,
 				Groups: []Group{
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -137,11 +141,12 @@ func TestConfigValidate(t *testing.T) {
 				FileModeCert: 0400,
 				FileModeKey:  0600,
 				CooldownSec:  1,
+				MaxDomains:   50,
 				Groups: []Group{
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -158,18 +163,19 @@ func TestConfigValidate(t *testing.T) {
 				FileModeCert: 0644,
 				FileModeKey:  0600,
 				CooldownSec:  1,
+				MaxDomains:   50,
 				Groups: []Group{
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -186,11 +192,12 @@ func TestConfigValidate(t *testing.T) {
 				FileModeCert: 0644,
 				FileModeKey:  0600,
 				CooldownSec:  1,
+				MaxDomains:   50,
 				Groups: []Group{
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
@@ -208,11 +215,12 @@ func TestConfigValidate(t *testing.T) {
 				FileModeCert: 0644,
 				FileModeKey:  0600,
 				CooldownSec:  1,
+				MaxDomains:   50,
 				Groups: []Group{
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
@@ -228,11 +236,12 @@ func TestConfigValidate(t *testing.T) {
 				FileModeCert: 0644,
 				FileModeKey:  0600,
 				CooldownSec:  1,
+				MaxDomains:   50,
 				Groups: []Group{
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_DNS, Provider: "cloudflare", Domains: []string{"waf.alpenmesh.com"}},
 						},
 					},
@@ -248,12 +257,35 @@ func TestConfigValidate(t *testing.T) {
 				FileModeCert: 0644,
 				FileModeKey:  0600,
 				CooldownSec:  1,
+				MaxDomains:   50,
 				Groups: []Group{
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_DNS, Provider: "cloudflare", Domains: []string{"*.waf.alpenmesh.com"}},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "max_domains too high",
+			cfg: &ConfigFile{
+				Retries:      2,
+				PathCerts:    "/tmp",
+				PathWeb:      tmpWebDir,
+				FileModeCert: 0644,
+				FileModeKey:  0600,
+				CooldownSec:  1,
+				MaxDomains:   150,
+				Groups: []Group{
+					{
+						Name: "test1",
+						ID:   1,
+						Certs: []Certificate{
+							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
 					},
 				},
@@ -278,32 +310,32 @@ func TestConfigValidateCertLogic(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		cert    GroupCert
+		cert    Certificate
 		wantErr bool
 	}{
 		{
 			name:    "Invalid challenge type",
-			cert:    GroupCert{ChallengeType: "dns-05"},
+			cert:    Certificate{ChallengeType: "dns-05"},
 			wantErr: true,
 		},
 		{
 			name:    "Unsupported challenge type",
-			cert:    GroupCert{ChallengeType: "tls-alpn-01"},
+			cert:    Certificate{ChallengeType: "tls-alpn-01"},
 			wantErr: true,
 		},
 		{
 			name:    "Unsupported DNS provider",
-			cert:    GroupCert{ChallengeType: CHALLENGE_TYPE_DNS, Provider: "unknown-cloud"},
+			cert:    Certificate{ChallengeType: CHALLENGE_TYPE_DNS, Provider: "unknown-cloud"},
 			wantErr: true,
 		},
 		{
 			name:    "HTTP-01 with non-URL provider",
-			cert:    GroupCert{ChallengeType: CHALLENGE_TYPE_HTTP, Provider: "just-a-string"},
+			cert:    Certificate{ChallengeType: CHALLENGE_TYPE_HTTP, Provider: "just-a-string"},
 			wantErr: true,
 		},
 		{
 			name:    "Valid HTTP-01",
-			cert:    GroupCert{ChallengeType: CHALLENGE_TYPE_HTTP, Provider: lego.LEDirectoryStaging},
+			cert:    Certificate{ChallengeType: CHALLENGE_TYPE_HTTP, Provider: lego.LEDirectoryStaging},
 			wantErr: false,
 		},
 	}
@@ -371,7 +403,7 @@ func TestConfigValidateSchema(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 							{ID: 2, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
@@ -379,7 +411,7 @@ func TestConfigValidateSchema(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   2,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 							{ID: 2, ChallengeType: TYPE_HTTP, Provider: DUMMY_URL},
 						},
@@ -401,7 +433,7 @@ func TestConfigValidateSchema(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_DNS, Provider: "cloudflare", Domains: []string{"waf.alpenmesh.com"}},
 						},
 					},
@@ -422,7 +454,7 @@ func TestConfigValidateSchema(t *testing.T) {
 					{
 						Name: "test1",
 						ID:   1,
-						Certs: []GroupCert{
+						Certs: []Certificate{
 							{ID: 1, ChallengeType: TYPE_DNS, Provider: "cloudflare", Domains: []string{"*.waf.alpenmesh.com"}},
 						},
 					},

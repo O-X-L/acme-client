@@ -6,12 +6,12 @@ import (
 )
 
 func TestSortDomainsExceptFirst(t *testing.T) {
-	data := []string{"oxl.at", "www.oxl.at", "host-svc.com", "xyz.oxl.at"}
+	input := []string{"oxl.at", "www.oxl.at", "host-svc.com", "xyz.oxl.at"}
 	want := []string{"oxl.at", "host-svc.com", "www.oxl.at", "xyz.oxl.at"}
 
-	SortDomainsExceptFirst(data)
-	if !reflect.DeepEqual(data, want) {
-		t.Errorf("SortDomainsExceptFirst failed, got data=%v, want=%s", data, want)
+	SortDomainsExceptFirst(input)
+	if !reflect.DeepEqual(input, want) {
+		t.Errorf("SortDomainsExceptFirst failed, got=%v, want=%s", input, want)
 	}
 }
 
@@ -115,5 +115,19 @@ func TestBuildDiffString(t *testing.T) {
 				t.Errorf("%s failed: reason: '%v' != '%v'", tt.name, got, tt.want)
 			}
 		})
+	}
+}
+
+func TestBuildBatches(t *testing.T) {
+	input := []string{"aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg", "hhh"}
+	want := [][]string{
+		{"aaa", "bbb", "ccc"},
+		{"ddd", "eee", "fff"},
+		{"ggg", "hhh"},
+	}
+
+	output := BuildBatches(input, 3)
+	if !reflect.DeepEqual(output, want) {
+		t.Errorf("BuildBatches failed, got=%v, want=%s", output, want)
 	}
 }

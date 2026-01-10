@@ -22,7 +22,7 @@ func ValidateConfig(cnf *ConfigFile) error {
 		if _, err := os.Stat(pathWebAcmeChallenge); err != nil {
 			err := fmt.Errorf("ACME-challenge directory does not exist: %s", pathWebAcmeChallenge)
 			if CheckMode {
-				u.LogWarning(fmt.Sprintf("%v", err))
+				u.LogWarningf("%v", err)
 			} else {
 				return err
 			}
@@ -35,6 +35,13 @@ func ValidateConfig(cnf *ConfigFile) error {
 
 	if cnf.CooldownSec < 1 {
 		return fmt.Errorf("cooldown_sec must be >= 1")
+	}
+
+	if cnf.MaxDomains < 1 {
+		return fmt.Errorf("max_domains must be >= 1")
+	}
+	if cnf.MaxDomains > 100 {
+		u.LogWarning("A max_domains of > 100 might cause issues!")
 	}
 
 	if cnf.FileGroup != "" {
@@ -90,7 +97,7 @@ func translateHTTPProvider(provider string) (string, error) {
 	return "", fmt.Errorf("not found")
 }
 
-func validateCertConfig(cert GroupCert) error {
+func validateCertConfig(cert Certificate) error {
 	switch cert.ChallengeType {
 	case CHALLENGE_TYPE_DNS:
 		if !acme.IsSupportedProvider(cert.Provider) {
@@ -99,12 +106,12 @@ func validateCertConfig(cert GroupCert) error {
 
 	case CHALLENGE_TYPE_HTTP:
 		if Config.PathWeb == "" {
-			return fmt.Errorf("webroot path required for http-01 (/.well-known/acme-challenge)")
+			return fmt.Errorf("webroot path required for http-01 (.well-known/acme-challenge)")
 		}
 		if _, err := os.Stat(Config.PathWeb); os.IsNotExist(err) {
-			errMsg := fmt.Errorf("webroot dir for http-01 does not exist: %s (/.well-known/acme-challenge)", Config.PathWeb)
+			errMsg := fmt.Errorf("webroot dir for http-01 does not exist: %s (.well-known/acme-challenge)", Config.PathWeb)
 			if CheckMode {
-				u.LogWarning(fmt.Sprintf("%v", errMsg))
+				u.LogWarningf("%v", errMsg)
 			} else {
 				return errMsg
 			}
@@ -140,7 +147,7 @@ func ValidateSchema(cnf *ConfigFile) bool {
 
 	validationErrors := v.Validate(cnf)
 	if len(validationErrors) > 0 {
-		u.LogError(fmt.Sprintf("Got invalid config (schema): %+v", validationErrors))
+		u.LogErrorf("Got invalid config (schema): %+v", validationErrors)
 		return false
 	}
 	return true

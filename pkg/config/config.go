@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -34,7 +33,7 @@ const (
 	VERSION                = "1.1.0"
 )
 
-type GroupCert struct {
+type Certificate struct {
 	ID             uint              `yaml:"id" required:"true"`
 	Provider       string            `yaml:"provider" required:"true"` // URL if HTTP-01 else one of the listed DNS-providers
 	ProviderConfig map[string]string `yaml:"provider_config"`          // env-vars for DNS-01
@@ -43,16 +42,16 @@ type GroupCert struct {
 }
 
 type Group struct {
-	Name  string      `yaml:"name" required:"true"`
-	ID    uint        `yaml:"id" required:"true"`
-	Certs []GroupCert `yaml:"certs"`
+	Name  string        `yaml:"name" required:"true"`
+	ID    uint          `yaml:"id" required:"true"`
+	Certs []Certificate `yaml:"certs"`
 }
 
 type ConfigFile struct {
 	Email        string      `yaml:"email" validate:"email" required:"true"`
 	Groups       []Group     `yaml:"groups"`
 	Retries      uint        `yaml:"retries" default:"0"`
-	CooldownSec  uint        `yaml:"cooldown_sec" default:"1"`        // do not overwhelm the ACME service with requests - speed is not that important for requesting certs
+	CooldownSec  uint        `yaml:"cooldown_sec" default:"2"`        // do not overwhelm the ACME service with requests - speed is not that important for requesting certs
 	PathWeb      string      `yaml:"path_web" validate:"path_simple"` // only required if certs use http-01
 	PathCerts    string      `yaml:"path_certs" required:"true" validate:"path_simple"`
 	CreateBundle *bool       `yaml:"create_bundle" default:"false"`
@@ -61,6 +60,7 @@ type ConfigFile struct {
 	FileGroup    string      `yaml:"file_group"`
 	HookCmd      string      `yaml:"hook_cmd"`
 	RenewalDays  uint        `yaml:"renewal_days" default:"14"`
+	MaxDomains   uint        `yaml:"max_domains" default:"50"`
 }
 
 func LoadConfig(path string) (*ConfigFile, error) {
@@ -74,7 +74,7 @@ func LoadConfig(path string) (*ConfigFile, error) {
 	}
 
 	if err := defaults.Set(&cnf); err != nil {
-		u.LogError(fmt.Sprintf("Failed to set config defaults: \"%v\"", err))
+		u.LogErrorf("Failed to set config defaults: \"%v\"", err)
 		log.Fatalln("failed to load config")
 	}
 

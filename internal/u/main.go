@@ -91,3 +91,15 @@ func BuildDiffString(diff map[string][]string) string {
 	}
 	return strings.Join(out, " ")
 }
+
+func BuildBatches(input []string, size int) [][]string {
+	out := [][]string{}
+	for i := 0; i < len(input); i += size {
+		end := i + size
+		if end > len(input) {
+			end = len(input)
+		}
+		out = append(out, input[i:end])
+	}
+	return out
+}
