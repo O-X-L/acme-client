@@ -144,7 +144,7 @@ func ensureACMEUserRegistration(client *lego.Client, user *acme.User) error {
 }
 
 func Run() {
-	acme_logger.Logger = log.New(os.Stdout, "[ACME] ", log.LstdFlags)
+	acme_logger.Logger = log.New(os.Stdout, " ", log.LstdFlags)
 
 	anyChanged := false
 
